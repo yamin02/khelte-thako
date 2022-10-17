@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <title>Dream 11 Copy</title>
+        <link rel="apple-touch-icon" sizes="180x180" href="./resource/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="./resource/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="./resource/favicon-16x16.png">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://kit.fontawesome.com/172b7a97ab.js" crossorigin="anonymous"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+
+        <link rel="stylesheet" href="dashboardstyle.css">
+        <link rel="stylesheet" href="scorecard.css">
+
+
+    </head>
+    <body>
+        <header class="header">
+            <div class="header-content responsive-wrapper">
+                <div class="header-logo">
+                    <a href="#">
+                        <div>
+                            <img src="https://assets.codepen.io/285131/untitled-ui-icon.svg" />
+                        </div>
+                        <img src="https://assets.codepen.io/285131/untitled-ui.svg" />
+                    </a>
+                </div>
+                <a href="#" class="button">
+                    <i class="fa fa-bolt"></i>
+                    <span>Tk 5000.00</span>
+                </a>
+            </div>
+        </header>
+        <main class="main">
+            <div class="responsive-wrapper">
+                <div class="content">
+                    <div class="content-main">
+                                <div class="content-header-intro">
+                                    <h2>Contest Rewards and Rules</h2>
+                                    <p>Supercharge your contest and connect the tool you use every day.</p>
+                                </div>
+                                <div class="content-header-actions">
+                                    <a href="#" class="button reward" autofocus>
+                                        <i class="ph-faders-bold"></i>
+                                        <span>Rewards</span>
+                                    </a>
+                                    <a href="#" class="button rules">
+                                        <i class="ph-plus-bold"></i>
+                                        <span>Contest Rules</span>
+                                    </a>
+                                </div>
+                                <div id="content-reward" >
+                                    <h2>Rewards</h2>
+                                    <p>Supercharge your contest and connect the tool you use every day.</p>
+                                </div>
+                                <div id="content-rules" style="display:none;" >
+                                    <h2>Rules</h2>
+                                    <p>Supercharge your contest and connect the tool you use every day.</p>
+                                </div>
+                                <script>
+                                    $(".button.rules").click(function()
+                                        {
+                                            $("#content-rules").show();
+                                            $("#content-reward").hide() 
+                                    });
+                                    $(".button.reward").click(function()
+                                        {
+                                            $("#content-reward").show();
+                                            $("#content-rules").hide() 
+                                    });
+                                </script>
+    
+                    </div>
+                </div>
+            </div>
+        </main>
+    </body>
+</html>
