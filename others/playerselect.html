@@ -1,0 +1,124 @@
+<html>
+    <head>
+        <title>Dream 11 Copy</title>
+        <link rel="apple-touch-icon" sizes="180x180" href="./resource/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="./resource/favicon-32x32.png">
+        <!-- <link rel="icon" type="image/png" sizes="16x16" href="./resource/favicon-16x16.png"> -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://kit.fontawesome.com/172b7a97ab.js" crossorigin="anonymous"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+
+        <link rel="stylesheet" href="../frontend/css/dashboardstyle.css">
+        <link rel="stylesheet" href="../frontend/css/playerselect.css">
+        <link rel="stylesheet" href="css/scorecard.css">
+
+
+
+    </head>
+    <body>
+        <header class="header">
+            <div class="header-content responsive-wrapper">
+                <div class="header-logo">
+                    <a href="#">
+                        <div>
+                            <img src="https://assets.codepen.io/285131/untitled-ui-icon.svg" />
+                        </div>
+                        <img src="https://assets.codepen.io/285131/untitled-ui.svg" />
+                    </a>
+                </div>
+                <a href="#" class="button">
+                    <i class="fa fa-bolt"></i>
+                    <span>Tk 5000.00</span>
+                </a>
+            </div>
+        </header>
+        <main class="main">
+            <div class="responsive-wrapper">
+                <div class="horizontal-tabs">
+                    <a href="#"> <i class="fa fa-futbol-o"></i> Cricket </a>
+                    <a href="#"><i class="fa fa-futbol-o"> </i> Football </a>
+                    <a href="#"> Contest</a>
+                    <a href="#">Account</a>
+                    <a href="#">Plan</a>
+                    <a href="#">Billing</a>
+                    <a href="#">Email</a>
+                    <a href="#">Notifications</a>
+                    <a href="#" class="active">Integrations</a>
+                    <a href="#">API</a>
+                </div>
+                <div class="content">
+                    <!-- <div class="content-main"> -->
+                        <!-- <div class="card-grid" id="scorecard"> -->
+
+                               <!-- <div class="content"> -->
+
+            <div class="app" id="app">
+                <div>
+                    <div class="players">
+                    <div class="toolbar">
+                        <input type="text" id="query" class="search" placeholder="Search players by name or team"/>
+    
+                    <!-- Player list start form here -->
+                    <div class="player cardplayer">
+                        <div class="pic">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/AUT_vs._WAL_2016-10-06_%28155%29.jpg/220px-AUT_vs._WAL_2016-10-06_%28155%29.jpg">
+                        </div>
+                        <div class="info">
+                            <div class="name">Rishab Pant</div>
+                            <div class="position">Wicket Keeper Batsman</div>
+                            <div class="team">India</div>
+                            <div class="logo">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Bangladesh_Cricket_Board_Logo.svg/1200px-Bangladesh_Cricket_Board_Logo.svg.png">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="player cardplayer">
+                        <div class="pic">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Kalvin_Phillips_Leeds_United.jpg/220px-Kalvin_Phillips_Leeds_United.jpg">
+                        </div>
+                        <div class="info">
+                            <div class="name">Rishab Pant</div>
+                            <div class="position">Wicket Keeper Batsman</div>
+                            <div class="team">India</div>
+                            <div class="logo">
+                                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/5c/Bangladesh_Cricket_Board_Logo.svg/1200px-Bangladesh_Cricket_Board_Logo.svg.png">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="player cardplayer">
+                        <div class="pic">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Cristian_Gabriel_Romero_%28cropped_2%29.png/220px-Cristian_Gabriel_Romero_%28cropped_2%29.png">
+                        </div>
+                        <div class="info">
+                            <div class="name">Rishab Pant</div>
+                            <div class="position">Wicket Keeper Batsman</div>
+                            <div class="team">Pakistan</div>
+                            <div class="logo">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Pakistan_cricket_team_logo.png">
+                            </div>
+                        </div>
+                    </div>
+
+                    </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+    
+                        <!-- </div> -->
+                    <!-- </div> -->
+                </div>
+            </div>
+        </main>
+
+             
+        <script>
+            $(".player").click(function(){
+                $(this).toggleClass("selected");
+            })
+        </script>
+    </body>
+</html>

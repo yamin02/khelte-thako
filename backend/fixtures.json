@@ -1,0 +1,412 @@
+{
+  "Nov20": [
+    {
+      "time": "16:00",
+      "link": "1632087",
+      "teams": [
+        "Qatar",
+        "Ecuador"
+      ]
+    }
+  ],
+  "Nov21": [
+    {
+      "time": "13:00",
+      "link": "1632093",
+      "teams": [
+        "England",
+        "Iran"
+      ]
+    },
+    {
+      "time": "16:00",
+      "link": "1632088",
+      "teams": [
+        "Senegal",
+        "Netherlands"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1638012",
+      "teams": [
+        "USA",
+        "Wales"
+      ]
+    }
+  ],
+  "Nov22": [
+    {
+      "time": "10:00",
+      "link": "1632096",
+      "teams": [
+        "Argentina",
+        "Saudi Arabia"
+      ]
+    },
+    {
+      "time": "13:00",
+      "link": "1632102",
+      "teams": [
+        "Denmark",
+        "Tunisia"
+      ]
+    },
+    {
+      "time": "16:00",
+      "link": "1632097",
+      "teams": [
+        "Mexico",
+        "Poland"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1639750",
+      "teams": [
+        "France",
+        "Australia"
+      ]
+    }
+  ],
+  "Nov23": [
+    {
+      "time": "10:00",
+      "link": "1632109",
+      "teams": [
+        "Morocco",
+        "Croatia"
+      ]
+    },
+    {
+      "time": "13:00",
+      "link": "1632105",
+      "teams": [
+        "Germany",
+        "Japan"
+      ]
+    },
+    {
+      "time": "16:00",
+      "link": "1639878",
+      "teams": [
+        "Spain",
+        "Costa Rica"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632108",
+      "teams": [
+        "Belgium",
+        "Canada"
+      ]
+    }
+  ],
+  "Nov24": [
+    {
+      "time": "10:00",
+      "link": "1632115",
+      "teams": [
+        "Switzerland",
+        "Cameroon"
+      ]
+    },
+    {
+      "time": "13:00",
+      "link": "1632121",
+      "teams": [
+        "Uruguay",
+        "South Korea"
+      ]
+    },
+    {
+      "time": "16:00",
+      "link": "1632120",
+      "teams": [
+        "Portugal",
+        "Ghana"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632114",
+      "teams": [
+        "Brazil",
+        "Serbia"
+      ]
+    }
+  ],
+  "Nov25": [
+    {
+      "time": "10:00",
+      "link": "1638013",
+      "teams": [
+        "Wales",
+        "Iran"
+      ]
+    },
+    {
+      "time": "13:00",
+      "link": "1632089",
+      "teams": [
+        "Qatar",
+        "Senegal"
+      ]
+    },
+    {
+      "time": "16:00",
+      "link": "1632090",
+      "teams": [
+        "Netherlands",
+        "Ecuador"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632094",
+      "teams": [
+        "England",
+        "USA"
+      ]
+    }
+  ],
+  "Nov26": [
+    {
+      "time": "10:00",
+      "link": "1639751",
+      "teams": [
+        "Tunisia",
+        "Australia"
+      ]
+    },
+    {
+      "time": "13:00",
+      "link": "1632099",
+      "teams": [
+        "Poland",
+        "Saudi Arabia"
+      ]
+    },
+    {
+      "time": "16:00",
+      "link": "1632103",
+      "teams": [
+        "France",
+        "Denmark"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632098",
+      "teams": [
+        "Argentina",
+        "Mexico"
+      ]
+    }
+  ],
+  "Nov27": [
+    {
+      "time": "10:00",
+      "link": "1639879",
+      "teams": [
+        "Japan",
+        "Costa Rica"
+      ]
+    },
+    {
+      "time": "13:00",
+      "link": "1632110",
+      "teams": [
+        "Belgium",
+        "Morocco"
+      ]
+    },
+    {
+      "time": "16:00",
+      "link": "1632111",
+      "teams": [
+        "Croatia",
+        "Canada"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632106",
+      "teams": [
+        "Spain",
+        "Germany"
+      ]
+    }
+  ],
+  "Nov28": [
+    {
+      "time": "10:00",
+      "link": "1632117",
+      "teams": [
+        "Cameroon",
+        "Serbia"
+      ]
+    },
+    {
+      "time": "13:00",
+      "link": "1632123",
+      "teams": [
+        "South Korea",
+        "Ghana"
+      ]
+    },
+    {
+      "time": "16:00",
+      "link": "1632116",
+      "teams": [
+        "Brazil",
+        "Switzerland"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632122",
+      "teams": [
+        "Portugal",
+        "Uruguay"
+      ]
+    }
+  ],
+  "Nov29": [
+    {
+      "time": "15:00",
+      "link": "1632091",
+      "teams": [
+        "Netherlands",
+        "Qatar"
+      ]
+    },
+    {
+      "time": "15:00",
+      "link": "1632092",
+      "teams": [
+        "Ecuador",
+        "Senegal"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632095",
+      "teams": [
+        "Iran",
+        "USA"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1638014",
+      "teams": [
+        "Wales",
+        "England"
+      ]
+    }
+  ],
+  "Nov30": [
+    {
+      "time": "15:00",
+      "link": "1632104",
+      "teams": [
+        "Tunisia",
+        "France"
+      ]
+    },
+    {
+      "time": "15:00",
+      "link": "1639752",
+      "teams": [
+        "Australia",
+        "Denmark"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632100",
+      "teams": [
+        "Poland",
+        "Argentina"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632101",
+      "teams": [
+        "Saudi Arabia",
+        "Mexico"
+      ]
+    }
+  ],
+  "Dec1": [
+    {
+      "time": "15:00",
+      "link": "1632112",
+      "teams": [
+        "Croatia",
+        "Belgium"
+      ]
+    },
+    {
+      "time": "15:00",
+      "link": "1632113",
+      "teams": [
+        "Canada",
+        "Morocco"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632107",
+      "teams": [
+        "Japan",
+        "Spain"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1639880",
+      "teams": [
+        "Costa Rica",
+        "Germany"
+      ]
+    }
+  ],
+  "Dec2": [
+    {
+      "time": "15:00",
+      "link": "1632124",
+      "teams": [
+        "South Korea",
+        "Portugal"
+      ]
+    },
+    {
+      "time": "15:00",
+      "link": "1632125",
+      "teams": [
+        "Ghana",
+        "Uruguay"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632118",
+      "teams": [
+        "Cameroon",
+        "Brazil"
+      ]
+    },
+    {
+      "time": "19:00",
+      "link": "1632119",
+      "teams": [
+        "Serbia",
+        "Switzerland"
+      ]
+    }
+  ]
+}

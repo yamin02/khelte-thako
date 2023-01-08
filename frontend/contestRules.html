@@ -8,8 +8,8 @@
         <script src="https://kit.fontawesome.com/172b7a97ab.js" crossorigin="anonymous"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
 
-        <link rel="stylesheet" href="dashboardstyle.css">
-        <link rel="stylesheet" href="scorecard.css">
+        <link rel="stylesheet" href="css/dashboardstyle.css">
+        <link rel="stylesheet" href="css/scorecard.css">
 
 
     </head>
@@ -68,10 +68,39 @@
                                             $("#content-rules").hide() 
                                     });
                                 </script>
-    
+                      <button id="sendCode">Send Code</button>
                     </div>
                 </div>
             </div>
         </main>
+        <script>
+            // set-up an invisible recaptcha. 'sendCode` is button element id
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendCode', {
+  'size': 'invisible',
+  'callback': function (recapchaToken) {
+    // reCAPTCHA solved, send recapchaToken and phone number to backend.
+    
+    console.log(recapchaToken);
+    // a REST call to your backend
+    request.post({
+      url: 'https://your-rest-api',
+      body: {
+        phoneNumber: document.getElementById('phoneNumber').value,
+        recapchaToken,
+      }
+
+
+
+
+      
+    });
+  }
+});
+
+// render the rapchaVerifier. 
+window.recaptchaVerifier.render().then(function (widgetId) {
+  window.recaptchaWidgetId = widgetId;
+});
+        </script>
     </body>
 </html>

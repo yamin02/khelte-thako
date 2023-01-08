@@ -4,17 +4,22 @@
   "description": "// this is for the world cup 2022 fantasy football",
   "main": "crickbuzzApi.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify frontend/js/main.js -o frontend/bundle.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.27.2",
+    "body-parser": "^1.20.1",
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "fs": "^0.0.1-security",
     "got": "^12.3.0",
+    "http": "^0.0.1-security",
     "jsdom": "^20.0.0",
-    "mongoose": "^6.5.3"
+    "mongoose": "^6.5.3",
+    "puppeteer": "^19.2.2",
+    "socket.io": "^4.5.3"
   }
 }

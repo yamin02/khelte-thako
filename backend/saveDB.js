@@ -11,12 +11,14 @@ mongoose.connect('mongodb+srv://yamin02:chandanpura@sharebazar.z3hlw.mongodb.net
     console.log("MONGODB Error");
 });
 
-var qq = async () =>{
+var updateDB = async () =>{
     var pp = await crickbuzzApi.upcomingMatch();
+    console.log(pp);
+    await model.upcomingMatch.deleteMany({});
     await model.upcomingMatch.insertMany(pp).then(()=>{
         console.log("updated to DB")
     })
 }
 
-qq();
+updateDB();
 
