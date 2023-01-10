@@ -2,7 +2,6 @@
   "name": "dream11copy",
   "version": "1.0.0",
   "description": "// this is for the world cup 2022 fantasy football",
-  "main": "crickbuzzApi.js",
   "scripts": {
     "start": "node backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
