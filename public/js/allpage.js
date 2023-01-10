@@ -1,7 +1,7 @@
 const allplayerjson = require("../resource/allplayersCricket.json");
 //const allplayerjsonFootball = require("../resource/footballPlayer.json")
 const shortformCountry = require("../resource/shortformCountry.json");
-const utils=require('../js/utils')
+const utils=require('./utils')
 
 module.exports.scorecard =  
 {
