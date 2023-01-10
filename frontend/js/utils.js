@@ -13,7 +13,7 @@ module.exports.parseurl = () => {
 
 module.exports.getUpcomingMatches  = async() =>{
     const res = await axios({
-        url : `url/getUpcommingMatches`,
+        url : `${url}/getUpcommingMatches`,
         method:'GET' ,
         headers :  {
             "Content-Type" : 'application/json',
@@ -24,7 +24,7 @@ module.exports.getUpcomingMatches  = async() =>{
 
   module.exports.postresult  = async(json) =>{
     const res = await axios({
-        url : `url/userplayerselection`,
+        url : `${url}/userplayerselection`,
         method:'POST' ,
         headers :  {
             "Content-Type" : 'application/json',
@@ -36,7 +36,7 @@ module.exports.getUpcomingMatches  = async() =>{
 
   module.exports.userbaseUpdate  = async(json) =>{
     const res = await axios({
-        url : `url/userbase`,
+        url : `${url}/userbase`,
         method:'POST' ,
         headers :  {
             "Content-Type" : 'application/json',
