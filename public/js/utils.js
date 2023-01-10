@@ -1,4 +1,6 @@
 const axios = require('axios');
+var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
+//var url = `http://127.0.0.1:5000`
 
 module.exports.parseurl = () => {
     const url = document.location.hash.toLowerCase();
@@ -11,7 +13,7 @@ module.exports.parseurl = () => {
 
 module.exports.getUpcomingMatches  = async() =>{
     const res = await axios({
-        url : `http://127.0.0.1:5000/getUpcommingMatches`,
+        url : `url/getUpcommingMatches`,
         method:'GET' ,
         headers :  {
             "Content-Type" : 'application/json',
@@ -22,7 +24,7 @@ module.exports.getUpcomingMatches  = async() =>{
 
   module.exports.postresult  = async(json) =>{
     const res = await axios({
-        url : `http://127.0.0.1:5000/userplayerselection`,
+        url : `url/userplayerselection`,
         method:'POST' ,
         headers :  {
             "Content-Type" : 'application/json',
@@ -34,7 +36,7 @@ module.exports.getUpcomingMatches  = async() =>{
 
   module.exports.userbaseUpdate  = async(json) =>{
     const res = await axios({
-        url : `http://127.0.0.1:5000/userbase`,
+        url : `url/userbase`,
         method:'POST' ,
         headers :  {
             "Content-Type" : 'application/json',
