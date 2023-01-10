@@ -21,6 +21,8 @@ app.use(cors({
 app.listen(5000,()=>{
     console.log("Serving at Port 5000")
 });
+app.use(express.static(path.join(__dirname,'/../public')));
+// console.log(path.join(__dirname,'/../public'));
 
 app.use(express.json({limit : '1mb'}));   //remember to use , as for express to accpet json during POST req
 app.use(bodyParser.urlencoded({ extended: false }));
