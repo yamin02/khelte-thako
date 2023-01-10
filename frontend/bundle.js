@@ -1,4 +1,3430 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const allplayerjson = require("../resource/allplayersCricket.json");
+//const allplayerjsonFootball = require("../resource/footballPlayer.json")
+const shortformCountry = require("../resource/shortformCountry.json");
+const utils=require('./utils')
+
+module.exports.scorecard =  
+{
+    beforeRender : async ()=> 
+    {
+        // $('.content').html(``)
+    },
+
+    render  : async () => {    
+        var data = await utils.getUpcomingMatches();
+            console.log(data[0]);
+         var html = '' ;
+            for(var i of data ){
+             console.log(i)
+                var matchTeam1 =i['match'].split(",")[0].split('vs')[0].trim();
+                var matchTeam2 =i['match'].split(",")[0].split('vs')[1].trim();
+                var matchTime = i["time"].split("/")[0];
+                var matchLocation = i["match"].split("     ")[1];
+                var tornament = i['tornament'].trim()
+                var contestLink =  '/#/playerSelect/' +i['match_link'].split('/')[3];
+
+                // $('.content').append(
+               html = html  + 
+                 `<article class="card">
+                <div class="container">
+                <div class="match">
+                    <div class="match-header">
+                        <div class="match-status">6 hours</div>
+                        <div class="match-tournament"><img src="https://images.pitchero.com/counties/94/1657009271_original.jpeg" />${tornament}</div>
+                        <div class="match-actions">
+                        </div>
+                    </div>
+                    <div class="match-content">
+                        <div class="column">
+                            <div class="team team--home">
+                                <div class="team-logo">
+                                    <img src="${allplayerjson[matchTeam1+'Logo']}" />
+                                </div>
+                                <h2 class="team-name">${matchTeam1}</h2>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="match-details">
+                                <div class="match-date">
+                                    <strong>${matchTime}</strong>
+                                </div>
+                                <div class="location">
+                                    at <strong>${matchLocation}</strong>
+                                </div>
+                                <a class="match-bet-place" href=${contestLink} > Join Contest </a>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="team team--away">
+                                <div class="team-logo">
+                                    <img src="${allplayerjson[matchTeam2+'Logo']}" />
+                                </div>
+                                <h2 class="team-name">${matchTeam2}</h2>
+                            </div></div>
+                             </div>
+                            </div>
+                            </div>
+                          </article>`
+                          
+             }
+            $('.content').html(`<div class="content-main">
+             <div class="card-grid" id="scorecard">${html} </div></div>`) 
+    }
+}
+
+//player select page
+const footballLogo = require('../resource/fifaWorldCupLogo.json');
+module.exports.playerSelect =  {
+    beforeRender : async ()=>
+    {
+    },
+
+    render  : async ()=> 
+    {
+        const params = utils.parseurl().id.split('-') ;
+       // console.log(allplayerjson[shortformCountry[params[0]]])
+        var teams = [ shortformCountry[params[0]] ,  shortformCountry[params[2]] ];
+        var html = '';
+        for(var i of teams){
+            console.log(i);
+            for(var eachplayer of allplayerjson[i]){
+                html = html +  ` <div class="player cardplayer">
+                <div class="pic">
+                    <img src="${eachplayer.playerPic}">
+                </div>
+                <div class="info">
+                    <div class="name">${eachplayer.playerName}</div>
+                    <div class="position"> Position : Cricketer </div>
+                <!--<div class="position">Position : ${eachplayer.position}</div> <div class="club">Club: ${eachplayer.club}</div>
+                    <div class="stats">Age:${eachplayer.age} , Goals:${eachplayer.goal} ,  Caps :${eachplayer.caps}</div> 
+                -->
+
+                    <div class="logo">
+                    <!--  <img src="${footballLogo[i]}"> -->
+                    <img src="${allplayerjson[i+'Logo']}"> 
+                    </div>
+                </div>
+            </div>`
+            }
+        }
+
+        $(".content").html(`
+        <h2>Select Your Best Eleven</h2>
+        <a id="confirm">Confirm team</a>
+        <div class="app" id="app">
+        <div> 
+        <div class="players">
+        <div class="toolbar">
+             <input type="text" id="query" class="search" placeholder="Search players by name or team"/> ${html}
+        </div></div></div></div>
+        <script>
+            $(".player").click(function(){
+                $(this).toggleClass("selected");
+            })
+        </script>`
+        );
+    },
+    afterRender : async ()=>
+    {
+        $("#confirm").click(function (e) { 
+            var arr =[];
+            document.querySelectorAll('.selected .name').forEach((num)=>{arr.push(num.innerText)});
+            console.log(arr);
+            localStorage.setItem('contest834084' ,JSON.stringify(arr));
+            utils.postresult({'userID' : arr});
+        });
+    },
+}
+
+
+
+module.exports.SignIn =  {
+    beforeRender : async ()=>
+    {
+    },
+
+    render  : async ()=> 
+    {
+        if(localStorage.UserName){
+            var userData = JSON.parse(localStorage.UserName);
+            $(".content").html(` 
+            <div class="content-main">
+             <div class="card-grid" id="scorecard">
+             <div>name: ${userData.displayName}</div>
+             <div>uid : ${userData.uid}</div>
+             <div>email : ${userData.email}</div>
+            <div>
+                <img src="${userData.photoURL}"
+            </div>
+            <div>provider Type : ${userData.providerId}</div> 
+            </div></div>`);
+        }
+        else{
+        $(".content").html(` 
+        <script>
+          // Initialize Firebase
+          var config = {
+            apiKey: "AIzaSyDAnsBzMdKSaAOUthND3an_pCFGtPFqvBU",
+            authDomain: "yamin2002.firebaseapp.com",
+          };
+          firebase.initializeApp(config);
+        </script>
+
+      <!-- Dialogue Box -->
+      <div class="dialogueBox">
+          <p id="closeDialogue" style="float:right"><i class="fa fa-times-circle"></i></p>
+          <div id="firebaseui-auth-container"></div>
+      </div>`);
+        }
+    },
+    afterRender : async ()=>{
+        var uiConfig = {
+            'callbacks': {
+                'signInSuccess': async function(currentUser, credential, redirectUrl) {
+                    var userStuff = currentUser.providerData[0] ;
+                    var userAccount = await utils.userbaseUpdate(
+                        {'uid' : userStuff.uid , 
+                         'name' : userStuff.displayName,
+                         'email' : userStuff.email,
+                         'providerId' :userStuff.providerId 
+                        });
+                    localStorage.setItem('AccountBalance' , userAccount)
+                    localStorage.setItem('UserName',JSON.stringify(userStuff));
+                    location.href = "http://localhost:5500/#/signin" ;
+                    return false;
+                }
+                },
+                'signInOptions': [
+                firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+                ],
+            };
+            var ui = new firebaseui.auth.AuthUI(firebase.auth());
+            ui.start('#firebaseui-auth-container', uiConfig);
+    }
+}
+
+},{"../resource/allplayersCricket.json":4,"../resource/fifaWorldCupLogo.json":5,"../resource/shortformCountry.json":6,"./utils":3}],2:[function(require,module,exports){
+var allpage = require('./allpage');
+var utils = require('./utils')
+
+const screenurl = {
+  '/' : allpage.scorecard ,
+  '/home' : allpage.scorecard , 
+  '/playerselect/:id' : allpage.playerSelect ,
+  '/signin' : allpage.SignIn ,
+}
+
+const loader = async () => {
+  const request = utils.parseurl();
+  const parseUrl = (request.resource ? `/${request.resource}` : '/' ) + (request.id? '/:id': '')
+  var screen = screenurl[parseUrl];
+  await screen.render();
+  await screen.afterRender();
+} 
+
+
+window.addEventListener('hashchange' , loader);
+window.addEventListener('load' , loader)
+},{"./allpage":1,"./utils":3}],3:[function(require,module,exports){
+const axios = require('axios');
+var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
+//var url = `http://127.0.0.1:5000`
+
+module.exports.parseurl = () => {
+    const url = document.location.hash.toLowerCase();
+    const request = url.split('/');
+    return {
+        resource: request[1],
+        id: request[2] 
+    }
+}
+
+module.exports.getUpcomingMatches  = async() =>{
+    const res = await axios({
+        url : `url/getUpcommingMatches`,
+        method:'GET' ,
+        headers :  {
+            "Content-Type" : 'application/json',
+        },
+    })
+    return res.data
+  }
+
+  module.exports.postresult  = async(json) =>{
+    const res = await axios({
+        url : `url/userplayerselection`,
+        method:'POST' ,
+        headers :  {
+            "Content-Type" : 'application/json',
+        },
+        data:json ,
+    })
+   // return res.data
+  }
+
+  module.exports.userbaseUpdate  = async(json) =>{
+    const res = await axios({
+        url : `url/userbase`,
+        method:'POST' ,
+        headers :  {
+            "Content-Type" : 'application/json',
+        },
+        data:json
+    })
+    return res.data
+  }
+},{"axios":7}],4:[function(require,module,exports){
+module.exports={
+    "Australia":[
+       {
+          "playerName":"Mitchell Marsh",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4601.1666950843.jpg"
+       },
+       {
+          "playerName":"Mitchell Starc",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/4910.1666950862.jpg"
+       },
+       {
+          "playerName":"Tim David",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/11463.1666950929.jpg"
+       },
+       {
+          "playerName":"Ashton Agar",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5358.1666950681.jpg"
+       },
+       {
+          "playerName":"Adam Zampa",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5955.1666950659.jpg"
+       },
+       {
+          "playerName":"Glenn Maxwell",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4894.1666950723.jpg"
+       },
+       {
+          "playerName":"David Warner",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/4275.1666950705.jpg"
+       },
+       {
+          "playerName":"Pat Cummins",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/5164.1666950884.jpg"
+       },
+       {
+          "playerName":"Steven Smith",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/4552.1666950912.jpg"
+       },
+       {
+          "playerName":"Marcus Stoinis",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/5957.1666950791.jpg"
+       },
+       {
+          "playerName":"Cameron Green",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/10749.1667214852.jpg"
+       },
+       {
+          "playerName":"Josh Inglis",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7636.1634648498.jpg"
+       },
+       {
+          "playerName":"Aaron Finch",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/4780.1666950641.jpg"
+       },
+       {
+          "playerName":"Kane Richardson",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/5180.1666950770.jpg"
+       },
+       {
+          "playerName":"Matthew Wade",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/4555.1666950822.jpg"
+       },
+       {
+          "playerName":"Josh Hazlewood",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/4818.1666950750.jpg"
+       }
+    ],
+    "AustraliaLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-1.1627678833.png",
+    "England":[
+       {
+          "playerName":"Ben Stokes",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/4489.1666951203.jpg"
+       },
+       {
+          "playerName":"Philip Salt",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/8012.1666951499.jpg"
+       },
+       {
+          "playerName":"Dawid Malan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4041.1666951343.jpg"
+       },
+       {
+          "playerName":"Liam Livingstone",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/6724.1666951435.jpg"
+       },
+       {
+          "playerName":"David Willey",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/4475.1666951320.jpg"
+       },
+       {
+          "playerName":"Jos Buttler",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/4456.1666951408.jpg"
+       },
+       {
+          "playerName":"Tymal Mills",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/4973.1666951547.jpg"
+       },
+       {
+          "playerName":"Adil Rashid",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/3899.1666951137.jpg"
+       },
+       {
+          "playerName":"Sam Curran",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/7888.1666951518.jpg"
+       },
+       {
+          "playerName":"Harry Brook",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/9845.1666951375.jpg"
+       },
+       {
+          "playerName":"Chris Woakes",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4074.1666951272.jpg"
+       },
+       {
+          "playerName":"Moeen Ali",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/3992.1666951473.jpg"
+       },
+       {
+          "playerName":"Alex Hales",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/4150.1666951159.jpg"
+       },
+       {
+          "playerName":"Chris Jordan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/3870.1666951242.jpg"
+       },
+       {
+          "playerName":"Mark Wood",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5055.1666951451.jpg"
+       }
+    ],
+    "EnglandLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-2.1627678833.png",
+    "India":[
+       {
+          "playerName":"Suryakumar Yadav",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/5089.1666934155.jpg"
+       },
+       {
+          "playerName":"Hardik Pandya",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/7780.1666933992.jpg"
+       },
+       {
+          "playerName":"Bhuvneshwar Kumar",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4384.1666933930.jpg"
+       },
+       {
+          "playerName":"Mohammed Shami",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5051.1666934188.jpg"
+       },
+       {
+          "playerName":"Lokesh Rahul",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/6698.1666934039.jpg"
+       },
+       {
+          "playerName":"Harshal Patel",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/5343.1666934010.jpg"
+       },
+       {
+          "playerName":"Rohit Sharma",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/3516.1666934133.jpg"
+       },
+       {
+          "playerName":"Axar Patel",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/6626.1666933867.jpg"
+       },
+       {
+          "playerName":"Yuzvendra Chahal",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5085.1666934204.jpg"
+       },
+       {
+          "playerName":"Rishabh Pant",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/8229.1666934084.jpg"
+       },
+       {
+          "playerName":"Ravichandran Ashwin",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/3795.1666934121.jpg"
+       },
+       {
+          "playerName":"Dinesh Karthik",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/3210.1666933974.jpg"
+       },
+       {
+          "playerName":"Deepak Hooda",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7106.1666933955.jpg"
+       },
+       {
+          "playerName":"Virat Kohli",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/3788.1666934063.jpg"
+       },
+       {
+          "playerName":"Arshdeep Singh",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11524.1666933887.jpg"
+       }
+    ],
+    "IndiaLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-3.1627678833.png",
+    "New Zealand":[
+       {
+          "playerName":"Adam Milne",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4881.1666951612.jpg"
+       },
+       {
+          "playerName":"Martin Guptill",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4274.1666951902.jpg"
+       },
+       {
+          "playerName":"Trent Boult",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4281.1666952027.jpg"
+       },
+       {
+          "playerName":"Mark Chapman",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/6965.1666951871.jpg"
+       },
+       {
+          "playerName":"Lockie Ferguson",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/6992.1666951828.jpg"
+       },
+       {
+          "playerName":"Ish Sodhi",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5388.1666951724.jpg"
+       },
+       {
+          "playerName":"Michael Bracewell",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/6813.1666951961.jpg"
+       },
+       {
+          "playerName":"Finn Allen",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/8316.1666951678.jpg"
+       },
+       {
+          "playerName":"Glenn Phillips",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/7670.1666951693.jpg"
+       },
+       {
+          "playerName":"Mitchell Santner",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7526.1666951992.jpg"
+       },
+       {
+          "playerName":"Tim Southee",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/3652.1666952010.jpg"
+       },
+       {
+          "playerName":"Kane Williamson",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/4637.1666951797.jpg"
+       },
+       {
+          "playerName":"Daryl Mitchell",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/6881.1666951635.jpg"
+       },
+       {
+          "playerName":"Jimmy Neesham",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5978.1666951751.jpg"
+       },
+       {
+          "playerName":"Devon Conway",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/7559.1666951660.jpg"
+       }
+    ],
+    "New ZealandLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-4.1627678833.png",
+    "Pakistan":[
+       {
+          "playerName":"Iftikhar Ahmed",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8121.1666936174.jpg"
+       },
+       {
+          "playerName":"Asif Ali",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/6806.1666936030.jpg"
+       },
+       {
+          "playerName":"Shadab Khan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/8429.1666936350.jpg"
+       },
+       {
+          "playerName":"Muhammad Hasnain",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/11888.1666936248.jpg"
+       },
+       {
+          "playerName":"Mohammad Rizwan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/6743.1666936297.jpg"
+       },
+       {
+          "playerName":"Haris Rauf",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/12268.1666936164.jpg"
+       },
+       {
+          "playerName":"Shaheen Afridi",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/11425.1666936387.jpg"
+       },
+       {
+          "playerName":"Naseem Shah",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/13045.1666936331.jpg"
+       },
+       {
+          "playerName":"Shan Masood",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/6801.1666936410.jpg"
+       },
+       {
+          "playerName":"Khushdil Shah",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/11055.1666936199.jpg"
+       },
+       {
+          "playerName":"Fakhar Zaman",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/8192.1666936119.jpg"
+       },
+       {
+          "playerName":"Muhammad Wasim",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/13333.1666936317.jpg"
+       },
+       {
+          "playerName":"Babar Azam",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5601.1666936227.jpg"
+       },
+       {
+          "playerName":"Haider Ali",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/13127.1666936135.jpg"
+       },
+       {
+          "playerName":"Mohammad Nawaz",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/5612.1666936277.jpg"
+       }
+    ],
+    "PakistanLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-5.1627678833.png",
+    "South Africa":[
+       {
+          "playerName":"Aiden Markram",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/7165.1666955142.jpg"
+       },
+       {
+          "playerName":"Lungi Ngidi",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8171.1666955289.jpg"
+       },
+       {
+          "playerName":"Marco Jansen",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/12663.1666955314.jpg"
+       },
+       {
+          "playerName":"Tristan Stubbs",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/14343.1666955470.jpg"
+       },
+       {
+          "playerName":"Keshav Maharaj",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/7529.1666955262.jpg"
+       },
+       {
+          "playerName":"David Miller",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4804.1666955194.jpg"
+       },
+       {
+          "playerName":"Temba Bavuma",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5885.1666955453.jpg"
+       },
+       {
+          "playerName":"Anrich Nortje",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/11455.1666955174.jpg"
+       },
+       {
+          "playerName":"Quinton de Kock",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5648.1666955349.jpg"
+       },
+       {
+          "playerName":"Wayne Parnell",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/4279.1666955484.jpg"
+       },
+       {
+          "playerName":"Reeza Hendricks",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/7609.1666955366.jpg"
+       },
+       {
+          "playerName":"Heinrich Klaasen",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/7620.1666955225.jpg"
+       },
+       {
+          "playerName":"Kagiso Rabada",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/6580.1666955242.jpg"
+       },
+       {
+          "playerName":"Rilee Rossouw",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/4546.1666955420.jpg"
+       },
+       {
+          "playerName":"Tabraiz Shamsi",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/7584.1666955443.jpg"
+       }
+    ],
+    "South AfricaLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-6.1627678833.png",
+    "Sri Lanka":[
+       {
+          "playerName":"Danushka Gunathilaka",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/5702.1506322316.jpg"
+       },
+       {
+          "playerName":"Dushmantha Chameera",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5708.1521441852.jpg"
+       },
+       {
+          "playerName":"Dilshan Madushanka",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/13341.1661322815.jpg"
+       },
+       {
+          "playerName":"Jeffrey Vandersay",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/7990.1667187673.jpg"
+       },
+       {
+          "playerName":"Maheesh Theekshana",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/14211.1667187996.jpg"
+       },
+       {
+          "playerName":"Wanindu Hasaranga",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8261.1667188099.jpg"
+       },
+       {
+          "playerName":"Lahiru Kumara",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/8265.1505978744.jpg"
+       },
+       {
+          "playerName":"Dasun Shanaka",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/5734.1667187424.jpg"
+       },
+       {
+          "playerName":"Asitha Fernando",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/8262.1521441442.jpg"
+       },
+       {
+          "playerName":"Chamika Karunaratne",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/11119.1667187351.jpg"
+       },
+       {
+          "playerName":"Kusal Mendis",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/7167.1667187715.jpg"
+       },
+       {
+          "playerName":"Dhananjaya de Silva",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/5736.1667187628.jpg"
+       },
+       {
+          "playerName":"Pathum Nissanka",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/10705.1667188052.jpg"
+       },
+       {
+          "playerName":"Ashen Bandara",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/10707.1667187221.jpg"
+       },
+       {
+          "playerName":"Kasun Rajitha",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/8510.1562063000.jpg"
+       },
+       {
+          "playerName":"Binura Fernando",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/7172.1571375341.jpg"
+       },
+       {
+          "playerName":"Charith Asalanka",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/8255.1667187402.jpg"
+       },
+       {
+          "playerName":"Pramod Madushan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/15987.1667188076.jpg"
+       },
+       {
+          "playerName":"Bhanuka Rajapaksa",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/5177.1667187309.jpg"
+       }
+    ],
+    "Sri LankaLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-7.1627678833.png",
+    "West Indies":[
+       {
+          "playerName":"Devon Thomas",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/4508..jpg"
+       },
+       {
+          "playerName":"Jermaine Blackwood",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/6759.1526043092.jpg"
+       },
+       {
+          "playerName":"Kyle Mayers",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/5212.1667214608.jpg"
+       },
+       {
+          "playerName":"Sharmarh Brooks",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/6011.1667214761.jpg"
+       },
+       {
+          "playerName":"Jason Holder",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5211.1667214545.jpg"
+       },
+       {
+          "playerName":"Roston Chase",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/6012.1526043425.jpg"
+       },
+       {
+          "playerName":"Kemar Roach",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4084.1526043122.jpg"
+       },
+       {
+          "playerName":"Kraigg Brathwaite",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4501.1526043242.jpg"
+       },
+       {
+          "playerName":"Tagenarine Chanderpaul",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/7201..jpg"
+       },
+       {
+          "playerName":"Anderson Phillip",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/9832..jpg"
+       },
+       {
+          "playerName":"Nkrumah Bonner",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/4922..jpg"
+       },
+       {
+          "playerName":"Jayden Seales",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/13096.1643871893.jpg"
+       },
+       {
+          "playerName":"Joshua Da Silva",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/13434..jpg"
+       },
+       {
+          "playerName":"Alzarri Joseph",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/7223.1667214465.jpg"
+       },
+       {
+          "playerName":"Raymon Reifer",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/6017.1667214725.jpg"
+       }
+    ],
+    "West IndiesLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-8.1627678833.png",
+    "Bangladesh":[
+       {
+          "playerName":"Taskin Ahmed",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/5563.1506324115.jpg"
+       },
+       {
+          "playerName":"Nurul Hasan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/5564.1661323694.jpg"
+       },
+       {
+          "playerName":"Soumya Sarkar",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/5570.1506323939.jpg"
+       },
+       {
+          "playerName":"Yasir Ali",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/7087.1666680914.jpg"
+       },
+       {
+          "playerName":"Nazmul Hossain Shanto",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/6753.1666680885.jpg"
+       },
+       {
+          "playerName":"Hasan Mahmud",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/11572.1661323365.jpg"
+       },
+       {
+          "playerName":"Liton Das",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/5567.1506323355.jpg"
+       },
+       {
+          "playerName":"Mehedi Hasan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/6750.1506323385.jpg"
+       },
+       {
+          "playerName":"Mustafizur Rahman",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/6752.1644671504.jpg"
+       },
+       {
+          "playerName":"Shakib Al Hasan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/3420.1506323766.jpg"
+       },
+       {
+          "playerName":"Nasum Ahmed",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5561.1661323623.jpg"
+       },
+       {
+          "playerName":"Afif Hossain",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/10830.1571724978.jpg"
+       },
+       {
+          "playerName":"Mosaddek Hossain",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/5560.1506323656.jpg"
+       },
+       {
+          "playerName":"Ebadat Hossain",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/10757.1571727413.jpg"
+       },
+       {
+          "playerName":"Shoriful Islam",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/12317.1643880739.jpg"
+       }
+    ],
+    "BangladeshLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-10.1627678833.png",
+    "Ireland":[
+       {
+          "playerName":"Paul Stirling",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/3662.1666952819.jpg"
+       },
+       {
+          "playerName":"Joshua Little",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/8464.1666952774.jpg"
+       },
+       {
+          "playerName":"Gareth Delany",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/12732.1666952710.jpg"
+       },
+       {
+          "playerName":"Mark Adair",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/8089.1666952808.jpg"
+       },
+       {
+          "playerName":"George Dockrell",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/4777.1666952731.jpg"
+       },
+       {
+          "playerName":"Conor Olphert",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/15991.1666952645.jpg"
+       },
+       {
+          "playerName":"Stephen Doheny",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/8465.1666952870.jpg"
+       },
+       {
+          "playerName":"Fionn Hand",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/12740.1666952668.jpg"
+       },
+       {
+          "playerName":"Barry McCarthy",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/5526.1666952626.jpg"
+       },
+       {
+          "playerName":"Curtis Campher",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/12025.1666952657.jpg"
+       },
+       {
+          "playerName":"Simi Singh",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/11215.1666952836.jpg"
+       },
+       {
+          "playerName":"Lorcan Tucker",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/8462.1666952790.jpg"
+       },
+       {
+          "playerName":"Graham Hume",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/16040.1666952741.jpg"
+       },
+       {
+          "playerName":"Andrew Balbirnie",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/4828.1666952600.jpg"
+       },
+       {
+          "playerName":"Harry Tector",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/8466.1666952751.jpg"
+       }
+    ],
+    "IrelandLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-24.1627678833.png",
+    "Zimbabwe":[
+       {
+          "playerName":"Craig Ervine",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/4790.1667212024.jpg"
+       },
+       {
+          "playerName":"Wellington Masakadza",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5695.1667212307.jpg"
+       },
+       {
+          "playerName":"Tony Munyonga",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/12659.1667212282.jpg"
+       },
+       {
+          "playerName":"Clive Madande",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/15451.1667211988.jpg"
+       },
+       {
+          "playerName":"Brad Evans",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/11963.1667211956.jpg"
+       },
+       {
+          "playerName":"Luke Jongwe",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/5692.1666346467.jpg"
+       },
+       {
+          "playerName":"Tendai Chatara",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/4815.1667212260.jpg"
+       },
+       {
+          "playerName":"Wesley Madhevere",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8391.1667212327.jpg"
+       },
+       {
+          "playerName":"Richard Ngarava",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/8395.1667212163.jpg"
+       },
+       {
+          "playerName":"Sean Williams",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/3270.1667212214.jpg"
+       },
+       {
+          "playerName":"Ryan Burl",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/5689.1667212185.jpg"
+       },
+       {
+          "playerName":"Milton Shumba",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/8399.1666346493.jpg"
+       },
+       {
+          "playerName":"Blessing Muzarabani",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/11612.1667211897.jpg"
+       },
+       {
+          "playerName":"Sikandar Raza",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/6701.1667212231.jpg"
+       },
+       {
+          "playerName":"Regis Chakabva",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/3597.1667212106.jpg"
+       }
+    ],
+    "ZimbabweLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-9.1627678833.png",
+    "Afghanistan":[
+       {
+          "playerName":"Darwish Rasooli",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11604.1666952213.jpg"
+       },
+       {
+          "playerName":"Rahmanullah Gurbaz",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/11600.1666952321.jpg"
+       },
+       {
+          "playerName":"Usman Ghani",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/7085.1666952515.jpg"
+       },
+       {
+          "playerName":"Fareed Ahmad",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/5549.1527050815.jpg"
+       },
+       {
+          "playerName":"Najibullah Zadran",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/5510.1666952428.jpg"
+       },
+       {
+          "playerName":"Hazrat Zazai",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/10844.1666952371.jpg"
+       },
+       {
+          "playerName":"Mohammad Nabi",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/4307.1666952399.jpg"
+       },
+       {
+          "playerName":"Gulbadin Naib",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/5137.1527050822.jpg"
+       },
+       {
+          "playerName":"Fazal",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/13162.1666952285.jpg"
+       },
+       {
+          "playerName":"Rashid Khan",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8141.1666952468.jpg"
+       },
+       {
+          "playerName":"Naveen-ul-Haq",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/8504.1666952440.jpg"
+       },
+       {
+          "playerName":"Qais Ahmad",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/8444.1666952457.jpg"
+       },
+       {
+          "playerName":"Ibrahim Zadran",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/11707.1666952385.jpg"
+       },
+       {
+          "playerName":"Saleem Safi",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/14409.1666952537.jpg"
+       },
+       {
+          "playerName":"Mujeeb Zadran",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11484.1666952412.jpg"
+       },
+       {
+          "playerName":"Azmatullah",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/11606.1666952196.jpg"
+       }
+    ],
+    "AfghanistanLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-95.1627678833.png",
+    "Scotland":[
+       {
+          "playerName":"Safyaan Sharif",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/5123.1666938081.jpg"
+       },
+       {
+          "playerName":"Chris Greaves",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/12332.1666351934.jpg"
+       },
+       {
+          "playerName":"Chris Sole",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/7158.1666351965.jpg"
+       },
+       {
+          "playerName":"Michael Jones",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/11718.1666352211.jpg"
+       },
+       {
+          "playerName":"Mark Watt",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7156.1666352112.jpg"
+       },
+       {
+          "playerName":"Richard Berrington",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/4132.1666352278.jpg"
+       },
+       {
+          "playerName":"Hamza Tahir",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/12042.1666352056.jpg"
+       },
+       {
+          "playerName":"George Munsey",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7856.1666938066.jpg"
+       },
+       {
+          "playerName":"Matthew Cross",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5631.1666352139.jpg"
+       },
+       {
+          "playerName":"Craig Wallace",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5148.1666352003.jpg"
+       },
+       {
+          "playerName":"Josh Davey",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/4758.1666352085.jpg"
+       },
+       {
+          "playerName":"Brandon McMullen",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/16414..jpg"
+       },
+       {
+          "playerName":"Calum MacLeod",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4154.1666351894.jpg"
+       },
+       {
+          "playerName":"Brad Wheal",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/7797.1666938047.jpg"
+       },
+       {
+          "playerName":"Michael Leask",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/6710.1666352235.jpg"
+       }
+    ],
+    "ScotlandLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-15.1627678833.png",
+    "Netherlands":[
+       {
+          "playerName":"Teja Nidamanuru",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11624.1666688670.jpg"
+       },
+       {
+          "playerName":"Bas de Leede",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/11883.1666334180.jpg"
+       },
+       {
+          "playerName":"Paul van Meekeren",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/6704.1666334324.jpg"
+       },
+       {
+          "playerName":"Tom Cooper",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4801.1666682221.jpg"
+       },
+       {
+          "playerName":"Colin Ackermann",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/7569.1666680791.jpg"
+       },
+       {
+          "playerName":"Max O'Dowd",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/7861.1666334297.jpg"
+       },
+       {
+          "playerName":"Brandon Glover",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/7408.1666334216.jpg"
+       },
+       {
+          "playerName":"Timm van der Gugten",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5225.1666334398.jpg"
+       },
+       {
+          "playerName":"Fredrick Klaassen",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/7975.1666334252.jpg"
+       },
+       {
+          "playerName":"Scott Edwards",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11824.1666682201.jpg"
+       },
+       {
+          "playerName":"Vikram Singh",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/12954.1666938017.jpg"
+       },
+       {
+          "playerName":"Shariz Ahmad",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/15578.1666937980.jpg"
+       },
+       {
+          "playerName":"Stephan Myburgh",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/5223.1666334373.jpg"
+       },
+       {
+          "playerName":"Logan van Beek",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/5739.1666334275.jpg"
+       },
+       {
+          "playerName":"Roelof van der Merwe",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/4299.1666334348.jpg"
+       },
+       {
+          "playerName":"Tim Pringle",
+          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/12718.1666334416.jpg"
+       }
+    ],
+    "NetherlandsLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-14.1627678833.png"
+ }
+},{}],5:[function(require,module,exports){
+module.exports={
+    "Ecuador": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/FEF_logo.svg/160px-FEF_logo.svg.png",
+    "Netherlands": "https://upload.wikimedia.org/wikipedia/en/thumb/7/78/Netherlands_national_football_team_logo.svg/150px-Netherlands_national_football_team_logo.svg.png",
+    "Qatar": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3a/Qatar_Football_Association_logo.svg/151px-Qatar_Football_Association_logo.svg.png",
+    "Senegal": "https://upload.wikimedia.org/wikipedia/en/thumb/1/16/Senegalese_Football_Federation_logo.svg/190px-Senegalese_Football_Federation_logo.svg.png",
+    "England": "https://upload.wikimedia.org/wikipedia/en/thumb/1/1b/Semi-protection-shackle.svg/20px-Semi-protection-shackle.svg.png",
+    "Iran": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Iran_football_federation_emblem.png/155px-Iran_football_federation_emblem.png",
+    "United States ": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/United_States_Soccer_Federation_logo_2016.svg/150px-United_States_Soccer_Federation_logo_2016.svg.png",
+    "Wales": "https://upload.wikimedia.org/wikipedia/en/thumb/d/dc/Wales_national_football_team_logo.svg/175px-Wales_national_football_team_logo.svg.png",
+    "Argentina": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/Argentina_national_football_team_logo.svg/160px-Argentina_national_football_team_logo.svg.png",
+    "Mexico": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f3/Mexico_national_football_team_crest_%282022%29.png/150px-Mexico_national_football_team_crest_%282022%29.png",
+    "Poland": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Herb_Polski.svg/150px-Herb_Polski.svg.png",
+    "Saudi Arabia": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Flag_of_Saudi_Arabia.svg/200px-Flag_of_Saudi_Arabia.svg.png",
+    "Australia": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Australia_national_football_team_badge.svg/180px-Australia_national_football_team_badge.svg.png",
+    "Denmark": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Dansk_boldspil_union_logo.svg/180px-Dansk_boldspil_union_logo.svg.png",
+    "France": "https://upload.wikimedia.org/wikipedia/en/thumb/1/12/France_national_football_team_seal.svg/150px-France_national_football_team_seal.svg.png",
+    "Tunisia": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5d/Logo_federation_tunisienne_de_football-copy.svg/180px-Logo_federation_tunisienne_de_football-copy.svg.png",
+    "Costa Rica": "https://upload.wikimedia.org/wikipedia/en/thumb/8/8d/Costa_Rica_national_football_team_logo.svg/170px-Costa_Rica_national_football_team_logo.svg.png",
+    "Germany": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/DFBEagle.svg/200px-DFBEagle.svg.png",
+    "Japan": "https://upload.wikimedia.org/wikipedia/en/thumb/8/84/Japan_national_football_team_crest.svg/160px-Japan_national_football_team_crest.svg.png",
+    "Spain": "https://upload.wikimedia.org/wikipedia/en/thumb/3/31/Spain_National_Football_Team_badge.png/155px-Spain_National_Football_Team_badge.png",
+    "Belgium": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/Royal_Belgian_FA_logo_2019.svg/130px-Royal_Belgian_FA_logo_2019.svg.png",
+    "Canada": "https://upload.wikimedia.org/wikipedia/en/thumb/6/69/Canadian_Soccer_Association_logo.svg/175px-Canadian_Soccer_Association_logo.svg.png",
+    "Croatia": "https://upload.wikimedia.org/wikipedia/en/thumb/8/84/Croatian_Football_Federation_logo.svg/150px-Croatian_Football_Federation_logo.svg.png",
+    "Morocco": "https://upload.wikimedia.org/wikipedia/en/thumb/d/d9/Morocco_national_football_team_logo.png/165px-Morocco_national_football_team_logo.png",
+    "Brazil": "https://upload.wikimedia.org/wikipedia/en/thumb/9/99/Brazilian_Football_Confederation_logo.svg/170px-Brazilian_Football_Confederation_logo.svg.png",
+    "Cameroon": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/Cameroon_2010crest.png/170px-Cameroon_2010crest.png",
+    "Serbia": "https://upload.wikimedia.org/wikipedia/en/thumb/1/1e/Fudbalski_savez_Srbije.svg/140px-Fudbalski_savez_Srbije.svg.png",
+    "Switzerland": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Switzerland.svg/150px-Flag_of_Switzerland.svg.png",
+    "Ghana": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Flag_of_Ghana.svg/160px-Flag_of_Ghana.svg.png",
+    "Portugal": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/Portuguese_Football_Federation.svg/150px-Portuguese_Football_Federation.svg.png",
+    "South Korea": "https://upload.wikimedia.org/wikipedia/en/thumb/0/06/Korea_Republic_National_Team_Logo.svg/145px-Korea_Republic_National_Team_Logo.svg.png",
+    "Uruguay": "https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Uruguay_national_football_team_seal.svg/140px-Uruguay_national_football_team_seal.svg.png"
+  }
+},{}],6:[function(require,module,exports){
+module.exports={
+        "aus":"Australia",
+        "eng":"England",
+        "ind":"India",
+        "nz":"New Zealand",
+        "pak":"Pakistan",
+        "sa":"South Africa",
+        "sl":"Sri Lanka",
+        "wi":"West Indies",
+        "ban":"Bangladesh",
+        "ire":"Ireland",
+        "zim":"Zimbabwe",
+        "afg":"Afghanistan",
+        "sco":"Scotland",
+        "ned":"Netherlands",
+
+        "arg":"Argentina",
+        "bra":"Brazil",
+        "por":"Portugal"
+}
+},{}],7:[function(require,module,exports){
+module.exports = require('./lib/axios');
+},{"./lib/axios":9}],8:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+var settle = require('./../core/settle');
+var cookies = require('./../helpers/cookies');
+var buildURL = require('./../helpers/buildURL');
+var buildFullPath = require('../core/buildFullPath');
+var parseHeaders = require('./../helpers/parseHeaders');
+var isURLSameOrigin = require('./../helpers/isURLSameOrigin');
+var transitionalDefaults = require('../defaults/transitional');
+var AxiosError = require('../core/AxiosError');
+var CanceledError = require('../cancel/CanceledError');
+var parseProtocol = require('../helpers/parseProtocol');
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+    var responseType = config.responseType;
+    var onCanceled;
+    function done() {
+      if (config.cancelToken) {
+        config.cancelToken.unsubscribe(onCanceled);
+      }
+
+      if (config.signal) {
+        config.signal.removeEventListener('abort', onCanceled);
+      }
+    }
+
+    if (utils.isFormData(requestData) && utils.isStandardBrowserEnv()) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    var fullPath = buildFullPath(config.baseURL, config.url);
+
+    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    function onloadend() {
+      if (!request) {
+        return;
+      }
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !responseType || responseType === 'text' ||  responseType === 'json' ?
+        request.responseText : request.response;
+      var response = {
+        data: responseData,
+        status: request.status,
+        statusText: request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(function _resolve(value) {
+        resolve(value);
+        done();
+      }, function _reject(err) {
+        reject(err);
+        done();
+      }, response);
+
+      // Clean up request
+      request = null;
+    }
+
+    if ('onloadend' in request) {
+      // Use onloadend if available
+      request.onloadend = onloadend;
+    } else {
+      // Listen for ready state to emulate onloadend
+      request.onreadystatechange = function handleLoad() {
+        if (!request || request.readyState !== 4) {
+          return;
+        }
+
+        // The request errored out and we didn't get a response, this will be
+        // handled by onerror instead
+        // With one exception: request that using file: protocol, most browsers
+        // will return status as 0 even though it's a successful request
+        if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+          return;
+        }
+        // readystate handler is calling before onerror or ontimeout handlers,
+        // so we should call onloadend on the next 'tick'
+        setTimeout(onloadend);
+      };
+    }
+
+    // Handle browser request cancellation (as opposed to a manual cancellation)
+    request.onabort = function handleAbort() {
+      if (!request) {
+        return;
+      }
+
+      reject(new AxiosError('Request aborted', AxiosError.ECONNABORTED, config, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      var timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
+      var transitional = config.transitional || transitionalDefaults;
+      if (config.timeoutErrorMessage) {
+        timeoutErrorMessage = config.timeoutErrorMessage;
+      }
+      reject(new AxiosError(
+        timeoutErrorMessage,
+        transitional.clarifyTimeoutError ? AxiosError.ETIMEDOUT : AxiosError.ECONNABORTED,
+        config,
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
+        cookies.read(config.xsrfCookieName) :
+        undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (!utils.isUndefined(config.withCredentials)) {
+      request.withCredentials = !!config.withCredentials;
+    }
+
+    // Add responseType to request if needed
+    if (responseType && responseType !== 'json') {
+      request.responseType = config.responseType;
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken || config.signal) {
+      // Handle cancellation
+      // eslint-disable-next-line func-names
+      onCanceled = function(cancel) {
+        if (!request) {
+          return;
+        }
+        reject(!cancel || (cancel && cancel.type) ? new CanceledError() : cancel);
+        request.abort();
+        request = null;
+      };
+
+      config.cancelToken && config.cancelToken.subscribe(onCanceled);
+      if (config.signal) {
+        config.signal.aborted ? onCanceled() : config.signal.addEventListener('abort', onCanceled);
+      }
+    }
+
+    if (!requestData) {
+      requestData = null;
+    }
+
+    var protocol = parseProtocol(fullPath);
+
+    if (protocol && [ 'http', 'https', 'file' ].indexOf(protocol) === -1) {
+      reject(new AxiosError('Unsupported protocol ' + protocol + ':', AxiosError.ERR_BAD_REQUEST, config));
+      return;
+    }
+
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+},{"../cancel/CanceledError":11,"../core/AxiosError":14,"../core/buildFullPath":16,"../defaults/transitional":22,"../helpers/parseProtocol":34,"./../core/settle":19,"./../helpers/buildURL":25,"./../helpers/cookies":27,"./../helpers/isURLSameOrigin":30,"./../helpers/parseHeaders":33,"./../utils":38}],9:[function(require,module,exports){
+'use strict';
+
+var utils = require('./utils');
+var bind = require('./helpers/bind');
+var Axios = require('./core/Axios');
+var mergeConfig = require('./core/mergeConfig');
+var defaults = require('./defaults');
+
+/**
+ * Create an instance of Axios
+ *
+ * @param {Object} defaultConfig The default config for the instance
+ * @return {Axios} A new instance of Axios
+ */
+function createInstance(defaultConfig) {
+  var context = new Axios(defaultConfig);
+  var instance = bind(Axios.prototype.request, context);
+
+  // Copy axios.prototype to instance
+  utils.extend(instance, Axios.prototype, context);
+
+  // Copy context to instance
+  utils.extend(instance, context);
+
+  // Factory for creating new instances
+  instance.create = function create(instanceConfig) {
+    return createInstance(mergeConfig(defaultConfig, instanceConfig));
+  };
+
+  return instance;
+}
+
+// Create the default instance to be exported
+var axios = createInstance(defaults);
+
+// Expose Axios class to allow class inheritance
+axios.Axios = Axios;
+
+// Expose Cancel & CancelToken
+axios.CanceledError = require('./cancel/CanceledError');
+axios.CancelToken = require('./cancel/CancelToken');
+axios.isCancel = require('./cancel/isCancel');
+axios.VERSION = require('./env/data').version;
+axios.toFormData = require('./helpers/toFormData');
+
+// Expose AxiosError class
+axios.AxiosError = require('../lib/core/AxiosError');
+
+// alias for CanceledError for backward compatibility
+axios.Cancel = axios.CanceledError;
+
+// Expose all/spread
+axios.all = function all(promises) {
+  return Promise.all(promises);
+};
+axios.spread = require('./helpers/spread');
+
+// Expose isAxiosError
+axios.isAxiosError = require('./helpers/isAxiosError');
+
+module.exports = axios;
+
+// Allow use of default import syntax in TypeScript
+module.exports.default = axios;
+
+},{"../lib/core/AxiosError":14,"./cancel/CancelToken":10,"./cancel/CanceledError":11,"./cancel/isCancel":12,"./core/Axios":13,"./core/mergeConfig":18,"./defaults":21,"./env/data":23,"./helpers/bind":24,"./helpers/isAxiosError":29,"./helpers/spread":35,"./helpers/toFormData":36,"./utils":38}],10:[function(require,module,exports){
+'use strict';
+
+var CanceledError = require('./CanceledError');
+
+/**
+ * A `CancelToken` is an object that can be used to request cancellation of an operation.
+ *
+ * @class
+ * @param {Function} executor The executor function.
+ */
+function CancelToken(executor) {
+  if (typeof executor !== 'function') {
+    throw new TypeError('executor must be a function.');
+  }
+
+  var resolvePromise;
+
+  this.promise = new Promise(function promiseExecutor(resolve) {
+    resolvePromise = resolve;
+  });
+
+  var token = this;
+
+  // eslint-disable-next-line func-names
+  this.promise.then(function(cancel) {
+    if (!token._listeners) return;
+
+    var i;
+    var l = token._listeners.length;
+
+    for (i = 0; i < l; i++) {
+      token._listeners[i](cancel);
+    }
+    token._listeners = null;
+  });
+
+  // eslint-disable-next-line func-names
+  this.promise.then = function(onfulfilled) {
+    var _resolve;
+    // eslint-disable-next-line func-names
+    var promise = new Promise(function(resolve) {
+      token.subscribe(resolve);
+      _resolve = resolve;
+    }).then(onfulfilled);
+
+    promise.cancel = function reject() {
+      token.unsubscribe(_resolve);
+    };
+
+    return promise;
+  };
+
+  executor(function cancel(message) {
+    if (token.reason) {
+      // Cancellation has already been requested
+      return;
+    }
+
+    token.reason = new CanceledError(message);
+    resolvePromise(token.reason);
+  });
+}
+
+/**
+ * Throws a `CanceledError` if cancellation has been requested.
+ */
+CancelToken.prototype.throwIfRequested = function throwIfRequested() {
+  if (this.reason) {
+    throw this.reason;
+  }
+};
+
+/**
+ * Subscribe to the cancel signal
+ */
+
+CancelToken.prototype.subscribe = function subscribe(listener) {
+  if (this.reason) {
+    listener(this.reason);
+    return;
+  }
+
+  if (this._listeners) {
+    this._listeners.push(listener);
+  } else {
+    this._listeners = [listener];
+  }
+};
+
+/**
+ * Unsubscribe from the cancel signal
+ */
+
+CancelToken.prototype.unsubscribe = function unsubscribe(listener) {
+  if (!this._listeners) {
+    return;
+  }
+  var index = this._listeners.indexOf(listener);
+  if (index !== -1) {
+    this._listeners.splice(index, 1);
+  }
+};
+
+/**
+ * Returns an object that contains a new `CancelToken` and a function that, when called,
+ * cancels the `CancelToken`.
+ */
+CancelToken.source = function source() {
+  var cancel;
+  var token = new CancelToken(function executor(c) {
+    cancel = c;
+  });
+  return {
+    token: token,
+    cancel: cancel
+  };
+};
+
+module.exports = CancelToken;
+
+},{"./CanceledError":11}],11:[function(require,module,exports){
+'use strict';
+
+var AxiosError = require('../core/AxiosError');
+var utils = require('../utils');
+
+/**
+ * A `CanceledError` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function CanceledError(message) {
+  // eslint-disable-next-line no-eq-null,eqeqeq
+  AxiosError.call(this, message == null ? 'canceled' : message, AxiosError.ERR_CANCELED);
+  this.name = 'CanceledError';
+}
+
+utils.inherits(CanceledError, AxiosError, {
+  __CANCEL__: true
+});
+
+module.exports = CanceledError;
+
+},{"../core/AxiosError":14,"../utils":38}],12:[function(require,module,exports){
+'use strict';
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+},{}],13:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+var buildURL = require('../helpers/buildURL');
+var InterceptorManager = require('./InterceptorManager');
+var dispatchRequest = require('./dispatchRequest');
+var mergeConfig = require('./mergeConfig');
+var buildFullPath = require('./buildFullPath');
+var validator = require('../helpers/validator');
+
+var validators = validator.validators;
+/**
+ * Create a new instance of Axios
+ *
+ * @param {Object} instanceConfig The default config for the instance
+ */
+function Axios(instanceConfig) {
+  this.defaults = instanceConfig;
+  this.interceptors = {
+    request: new InterceptorManager(),
+    response: new InterceptorManager()
+  };
+}
+
+/**
+ * Dispatch a request
+ *
+ * @param {Object} config The config specific for this request (merged with this.defaults)
+ */
+Axios.prototype.request = function request(configOrUrl, config) {
+  /*eslint no-param-reassign:0*/
+  // Allow for axios('example/url'[, config]) a la fetch API
+  if (typeof configOrUrl === 'string') {
+    config = config || {};
+    config.url = configOrUrl;
+  } else {
+    config = configOrUrl || {};
+  }
+
+  config = mergeConfig(this.defaults, config);
+
+  // Set config.method
+  if (config.method) {
+    config.method = config.method.toLowerCase();
+  } else if (this.defaults.method) {
+    config.method = this.defaults.method.toLowerCase();
+  } else {
+    config.method = 'get';
+  }
+
+  var transitional = config.transitional;
+
+  if (transitional !== undefined) {
+    validator.assertOptions(transitional, {
+      silentJSONParsing: validators.transitional(validators.boolean),
+      forcedJSONParsing: validators.transitional(validators.boolean),
+      clarifyTimeoutError: validators.transitional(validators.boolean)
+    }, false);
+  }
+
+  // filter out skipped interceptors
+  var requestInterceptorChain = [];
+  var synchronousRequestInterceptors = true;
+  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+    if (typeof interceptor.runWhen === 'function' && interceptor.runWhen(config) === false) {
+      return;
+    }
+
+    synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
+
+    requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  var responseInterceptorChain = [];
+  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+    responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+  });
+
+  var promise;
+
+  if (!synchronousRequestInterceptors) {
+    var chain = [dispatchRequest, undefined];
+
+    Array.prototype.unshift.apply(chain, requestInterceptorChain);
+    chain = chain.concat(responseInterceptorChain);
+
+    promise = Promise.resolve(config);
+    while (chain.length) {
+      promise = promise.then(chain.shift(), chain.shift());
+    }
+
+    return promise;
+  }
+
+
+  var newConfig = config;
+  while (requestInterceptorChain.length) {
+    var onFulfilled = requestInterceptorChain.shift();
+    var onRejected = requestInterceptorChain.shift();
+    try {
+      newConfig = onFulfilled(newConfig);
+    } catch (error) {
+      onRejected(error);
+      break;
+    }
+  }
+
+  try {
+    promise = dispatchRequest(newConfig);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+
+  while (responseInterceptorChain.length) {
+    promise = promise.then(responseInterceptorChain.shift(), responseInterceptorChain.shift());
+  }
+
+  return promise;
+};
+
+Axios.prototype.getUri = function getUri(config) {
+  config = mergeConfig(this.defaults, config);
+  var fullPath = buildFullPath(config.baseURL, config.url);
+  return buildURL(fullPath, config.params, config.paramsSerializer);
+};
+
+// Provide aliases for supported request methods
+utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
+  /*eslint func-names:0*/
+  Axios.prototype[method] = function(url, config) {
+    return this.request(mergeConfig(config || {}, {
+      method: method,
+      url: url,
+      data: (config || {}).data
+    }));
+  };
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  /*eslint func-names:0*/
+
+  function generateHTTPMethod(isForm) {
+    return function httpMethod(url, data, config) {
+      return this.request(mergeConfig(config || {}, {
+        method: method,
+        headers: isForm ? {
+          'Content-Type': 'multipart/form-data'
+        } : {},
+        url: url,
+        data: data
+      }));
+    };
+  }
+
+  Axios.prototype[method] = generateHTTPMethod();
+
+  Axios.prototype[method + 'Form'] = generateHTTPMethod(true);
+});
+
+module.exports = Axios;
+
+},{"../helpers/buildURL":25,"../helpers/validator":37,"./../utils":38,"./InterceptorManager":15,"./buildFullPath":16,"./dispatchRequest":17,"./mergeConfig":18}],14:[function(require,module,exports){
+'use strict';
+
+var utils = require('../utils');
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [config] The config.
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+function AxiosError(message, code, config, request, response) {
+  Error.call(this);
+  this.message = message;
+  this.name = 'AxiosError';
+  code && (this.code = code);
+  config && (this.config = config);
+  request && (this.request = request);
+  response && (this.response = response);
+}
+
+utils.inherits(AxiosError, Error, {
+  toJSON: function toJSON() {
+    return {
+      // Standard
+      message: this.message,
+      name: this.name,
+      // Microsoft
+      description: this.description,
+      number: this.number,
+      // Mozilla
+      fileName: this.fileName,
+      lineNumber: this.lineNumber,
+      columnNumber: this.columnNumber,
+      stack: this.stack,
+      // Axios
+      config: this.config,
+      code: this.code,
+      status: this.response && this.response.status ? this.response.status : null
+    };
+  }
+});
+
+var prototype = AxiosError.prototype;
+var descriptors = {};
+
+[
+  'ERR_BAD_OPTION_VALUE',
+  'ERR_BAD_OPTION',
+  'ECONNABORTED',
+  'ETIMEDOUT',
+  'ERR_NETWORK',
+  'ERR_FR_TOO_MANY_REDIRECTS',
+  'ERR_DEPRECATED',
+  'ERR_BAD_RESPONSE',
+  'ERR_BAD_REQUEST',
+  'ERR_CANCELED'
+// eslint-disable-next-line func-names
+].forEach(function(code) {
+  descriptors[code] = {value: code};
+});
+
+Object.defineProperties(AxiosError, descriptors);
+Object.defineProperty(prototype, 'isAxiosError', {value: true});
+
+// eslint-disable-next-line func-names
+AxiosError.from = function(error, code, config, request, response, customProps) {
+  var axiosError = Object.create(prototype);
+
+  utils.toFlatObject(error, axiosError, function filter(obj) {
+    return obj !== Error.prototype;
+  });
+
+  AxiosError.call(axiosError, error.message, code, config, request, response);
+
+  axiosError.name = error.name;
+
+  customProps && Object.assign(axiosError, customProps);
+
+  return axiosError;
+};
+
+module.exports = AxiosError;
+
+},{"../utils":38}],15:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+function InterceptorManager() {
+  this.handlers = [];
+}
+
+/**
+ * Add a new interceptor to the stack
+ *
+ * @param {Function} fulfilled The function to handle `then` for a `Promise`
+ * @param {Function} rejected The function to handle `reject` for a `Promise`
+ *
+ * @return {Number} An ID used to remove interceptor later
+ */
+InterceptorManager.prototype.use = function use(fulfilled, rejected, options) {
+  this.handlers.push({
+    fulfilled: fulfilled,
+    rejected: rejected,
+    synchronous: options ? options.synchronous : false,
+    runWhen: options ? options.runWhen : null
+  });
+  return this.handlers.length - 1;
+};
+
+/**
+ * Remove an interceptor from the stack
+ *
+ * @param {Number} id The ID that was returned by `use`
+ */
+InterceptorManager.prototype.eject = function eject(id) {
+  if (this.handlers[id]) {
+    this.handlers[id] = null;
+  }
+};
+
+/**
+ * Iterate over all the registered interceptors
+ *
+ * This method is particularly useful for skipping over any
+ * interceptors that may have become `null` calling `eject`.
+ *
+ * @param {Function} fn The function to call for each interceptor
+ */
+InterceptorManager.prototype.forEach = function forEach(fn) {
+  utils.forEach(this.handlers, function forEachHandler(h) {
+    if (h !== null) {
+      fn(h);
+    }
+  });
+};
+
+module.exports = InterceptorManager;
+
+},{"./../utils":38}],16:[function(require,module,exports){
+'use strict';
+
+var isAbsoluteURL = require('../helpers/isAbsoluteURL');
+var combineURLs = require('../helpers/combineURLs');
+
+/**
+ * Creates a new URL by combining the baseURL with the requestedURL,
+ * only when the requestedURL is not already an absolute URL.
+ * If the requestURL is absolute, this function returns the requestedURL untouched.
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} requestedURL Absolute or relative URL to combine
+ * @returns {string} The combined full path
+ */
+module.exports = function buildFullPath(baseURL, requestedURL) {
+  if (baseURL && !isAbsoluteURL(requestedURL)) {
+    return combineURLs(baseURL, requestedURL);
+  }
+  return requestedURL;
+};
+
+},{"../helpers/combineURLs":26,"../helpers/isAbsoluteURL":28}],17:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+var transformData = require('./transformData');
+var isCancel = require('../cancel/isCancel');
+var defaults = require('../defaults');
+var CanceledError = require('../cancel/CanceledError');
+
+/**
+ * Throws a `CanceledError` if cancellation has been requested.
+ */
+function throwIfCancellationRequested(config) {
+  if (config.cancelToken) {
+    config.cancelToken.throwIfRequested();
+  }
+
+  if (config.signal && config.signal.aborted) {
+    throw new CanceledError();
+  }
+}
+
+/**
+ * Dispatch a request to the server using the configured adapter.
+ *
+ * @param {object} config The config that is to be used for the request
+ * @returns {Promise} The Promise to be fulfilled
+ */
+module.exports = function dispatchRequest(config) {
+  throwIfCancellationRequested(config);
+
+  // Ensure headers exist
+  config.headers = config.headers || {};
+
+  // Transform request data
+  config.data = transformData.call(
+    config,
+    config.data,
+    config.headers,
+    config.transformRequest
+  );
+
+  // Flatten headers
+  config.headers = utils.merge(
+    config.headers.common || {},
+    config.headers[config.method] || {},
+    config.headers
+  );
+
+  utils.forEach(
+    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
+    function cleanHeaderConfig(method) {
+      delete config.headers[method];
+    }
+  );
+
+  var adapter = config.adapter || defaults.adapter;
+
+  return adapter(config).then(function onAdapterResolution(response) {
+    throwIfCancellationRequested(config);
+
+    // Transform response data
+    response.data = transformData.call(
+      config,
+      response.data,
+      response.headers,
+      config.transformResponse
+    );
+
+    return response;
+  }, function onAdapterRejection(reason) {
+    if (!isCancel(reason)) {
+      throwIfCancellationRequested(config);
+
+      // Transform response data
+      if (reason && reason.response) {
+        reason.response.data = transformData.call(
+          config,
+          reason.response.data,
+          reason.response.headers,
+          config.transformResponse
+        );
+      }
+    }
+
+    return Promise.reject(reason);
+  });
+};
+
+},{"../cancel/CanceledError":11,"../cancel/isCancel":12,"../defaults":21,"./../utils":38,"./transformData":20}],18:[function(require,module,exports){
+'use strict';
+
+var utils = require('../utils');
+
+/**
+ * Config-specific merge-function which creates a new config-object
+ * by merging two configuration objects together.
+ *
+ * @param {Object} config1
+ * @param {Object} config2
+ * @returns {Object} New object resulting from merging config2 to config1
+ */
+module.exports = function mergeConfig(config1, config2) {
+  // eslint-disable-next-line no-param-reassign
+  config2 = config2 || {};
+  var config = {};
+
+  function getMergedValue(target, source) {
+    if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
+      return utils.merge(target, source);
+    } else if (utils.isPlainObject(source)) {
+      return utils.merge({}, source);
+    } else if (utils.isArray(source)) {
+      return source.slice();
+    }
+    return source;
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDeepProperties(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(config1[prop], config2[prop]);
+    } else if (!utils.isUndefined(config1[prop])) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function valueFromConfig2(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(undefined, config2[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function defaultToConfig2(prop) {
+    if (!utils.isUndefined(config2[prop])) {
+      return getMergedValue(undefined, config2[prop]);
+    } else if (!utils.isUndefined(config1[prop])) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  // eslint-disable-next-line consistent-return
+  function mergeDirectKeys(prop) {
+    if (prop in config2) {
+      return getMergedValue(config1[prop], config2[prop]);
+    } else if (prop in config1) {
+      return getMergedValue(undefined, config1[prop]);
+    }
+  }
+
+  var mergeMap = {
+    'url': valueFromConfig2,
+    'method': valueFromConfig2,
+    'data': valueFromConfig2,
+    'baseURL': defaultToConfig2,
+    'transformRequest': defaultToConfig2,
+    'transformResponse': defaultToConfig2,
+    'paramsSerializer': defaultToConfig2,
+    'timeout': defaultToConfig2,
+    'timeoutMessage': defaultToConfig2,
+    'withCredentials': defaultToConfig2,
+    'adapter': defaultToConfig2,
+    'responseType': defaultToConfig2,
+    'xsrfCookieName': defaultToConfig2,
+    'xsrfHeaderName': defaultToConfig2,
+    'onUploadProgress': defaultToConfig2,
+    'onDownloadProgress': defaultToConfig2,
+    'decompress': defaultToConfig2,
+    'maxContentLength': defaultToConfig2,
+    'maxBodyLength': defaultToConfig2,
+    'beforeRedirect': defaultToConfig2,
+    'transport': defaultToConfig2,
+    'httpAgent': defaultToConfig2,
+    'httpsAgent': defaultToConfig2,
+    'cancelToken': defaultToConfig2,
+    'socketPath': defaultToConfig2,
+    'responseEncoding': defaultToConfig2,
+    'validateStatus': mergeDirectKeys
+  };
+
+  utils.forEach(Object.keys(config1).concat(Object.keys(config2)), function computeConfigValue(prop) {
+    var merge = mergeMap[prop] || mergeDeepProperties;
+    var configValue = merge(prop);
+    (utils.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
+  });
+
+  return config;
+};
+
+},{"../utils":38}],19:[function(require,module,exports){
+'use strict';
+
+var AxiosError = require('./AxiosError');
+
+/**
+ * Resolve or reject a Promise based on response status.
+ *
+ * @param {Function} resolve A function that resolves the promise.
+ * @param {Function} reject A function that rejects the promise.
+ * @param {object} response The response.
+ */
+module.exports = function settle(resolve, reject, response) {
+  var validateStatus = response.config.validateStatus;
+  if (!response.status || !validateStatus || validateStatus(response.status)) {
+    resolve(response);
+  } else {
+    reject(new AxiosError(
+      'Request failed with status code ' + response.status,
+      [AxiosError.ERR_BAD_REQUEST, AxiosError.ERR_BAD_RESPONSE][Math.floor(response.status / 100) - 4],
+      response.config,
+      response.request,
+      response
+    ));
+  }
+};
+
+},{"./AxiosError":14}],20:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+var defaults = require('../defaults');
+
+/**
+ * Transform the data for a request or a response
+ *
+ * @param {Object|String} data The data to be transformed
+ * @param {Array} headers The headers for the request or response
+ * @param {Array|Function} fns A single function or Array of functions
+ * @returns {*} The resulting transformed data
+ */
+module.exports = function transformData(data, headers, fns) {
+  var context = this || defaults;
+  /*eslint no-param-reassign:0*/
+  utils.forEach(fns, function transform(fn) {
+    data = fn.call(context, data, headers);
+  });
+
+  return data;
+};
+
+},{"../defaults":21,"./../utils":38}],21:[function(require,module,exports){
+(function (process){(function (){
+'use strict';
+
+var utils = require('../utils');
+var normalizeHeaderName = require('../helpers/normalizeHeaderName');
+var AxiosError = require('../core/AxiosError');
+var transitionalDefaults = require('./transitional');
+var toFormData = require('../helpers/toFormData');
+
+var DEFAULT_CONTENT_TYPE = {
+  'Content-Type': 'application/x-www-form-urlencoded'
+};
+
+function setContentTypeIfUnset(headers, value) {
+  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+    headers['Content-Type'] = value;
+  }
+}
+
+function getDefaultAdapter() {
+  var adapter;
+  if (typeof XMLHttpRequest !== 'undefined') {
+    // For browsers use XHR adapter
+    adapter = require('../adapters/xhr');
+  } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
+    // For node use HTTP adapter
+    adapter = require('../adapters/http');
+  }
+  return adapter;
+}
+
+function stringifySafely(rawValue, parser, encoder) {
+  if (utils.isString(rawValue)) {
+    try {
+      (parser || JSON.parse)(rawValue);
+      return utils.trim(rawValue);
+    } catch (e) {
+      if (e.name !== 'SyntaxError') {
+        throw e;
+      }
+    }
+  }
+
+  return (encoder || JSON.stringify)(rawValue);
+}
+
+var defaults = {
+
+  transitional: transitionalDefaults,
+
+  adapter: getDefaultAdapter(),
+
+  transformRequest: [function transformRequest(data, headers) {
+    normalizeHeaderName(headers, 'Accept');
+    normalizeHeaderName(headers, 'Content-Type');
+
+    if (utils.isFormData(data) ||
+      utils.isArrayBuffer(data) ||
+      utils.isBuffer(data) ||
+      utils.isStream(data) ||
+      utils.isFile(data) ||
+      utils.isBlob(data)
+    ) {
+      return data;
+    }
+    if (utils.isArrayBufferView(data)) {
+      return data.buffer;
+    }
+    if (utils.isURLSearchParams(data)) {
+      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+      return data.toString();
+    }
+
+    var isObjectPayload = utils.isObject(data);
+    var contentType = headers && headers['Content-Type'];
+
+    var isFileList;
+
+    if ((isFileList = utils.isFileList(data)) || (isObjectPayload && contentType === 'multipart/form-data')) {
+      var _FormData = this.env && this.env.FormData;
+      return toFormData(isFileList ? {'files[]': data} : data, _FormData && new _FormData());
+    } else if (isObjectPayload || contentType === 'application/json') {
+      setContentTypeIfUnset(headers, 'application/json');
+      return stringifySafely(data);
+    }
+
+    return data;
+  }],
+
+  transformResponse: [function transformResponse(data) {
+    var transitional = this.transitional || defaults.transitional;
+    var silentJSONParsing = transitional && transitional.silentJSONParsing;
+    var forcedJSONParsing = transitional && transitional.forcedJSONParsing;
+    var strictJSONParsing = !silentJSONParsing && this.responseType === 'json';
+
+    if (strictJSONParsing || (forcedJSONParsing && utils.isString(data) && data.length)) {
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        if (strictJSONParsing) {
+          if (e.name === 'SyntaxError') {
+            throw AxiosError.from(e, AxiosError.ERR_BAD_RESPONSE, this, null, this.response);
+          }
+          throw e;
+        }
+      }
+    }
+
+    return data;
+  }],
+
+  /**
+   * A timeout in milliseconds to abort a request. If set to 0 (default) a
+   * timeout is not created.
+   */
+  timeout: 0,
+
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+
+  maxContentLength: -1,
+  maxBodyLength: -1,
+
+  env: {
+    FormData: require('./env/FormData')
+  },
+
+  validateStatus: function validateStatus(status) {
+    return status >= 200 && status < 300;
+  },
+
+  headers: {
+    common: {
+      'Accept': 'application/json, text/plain, */*'
+    }
+  }
+};
+
+utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults.headers[method] = {};
+});
+
+utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+});
+
+module.exports = defaults;
+
+}).call(this)}).call(this,require('_process'))
+},{"../adapters/http":8,"../adapters/xhr":8,"../core/AxiosError":14,"../helpers/normalizeHeaderName":31,"../helpers/toFormData":36,"../utils":38,"./env/FormData":32,"./transitional":22,"_process":42}],22:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  silentJSONParsing: true,
+  forcedJSONParsing: true,
+  clarifyTimeoutError: false
+};
+
+},{}],23:[function(require,module,exports){
+module.exports = {
+  "version": "0.27.2"
+};
+},{}],24:[function(require,module,exports){
+'use strict';
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
+},{}],25:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+function encode(val) {
+  return encodeURIComponent(val).
+    replace(/%3A/gi, ':').
+    replace(/%24/g, '$').
+    replace(/%2C/gi, ',').
+    replace(/%20/g, '+').
+    replace(/%5B/gi, '[').
+    replace(/%5D/gi, ']');
+}
+
+/**
+ * Build a URL by appending params to the end
+ *
+ * @param {string} url The base of the url (e.g., http://www.google.com)
+ * @param {object} [params] The params to be appended
+ * @returns {string} The formatted url
+ */
+module.exports = function buildURL(url, params, paramsSerializer) {
+  /*eslint no-param-reassign:0*/
+  if (!params) {
+    return url;
+  }
+
+  var serializedParams;
+  if (paramsSerializer) {
+    serializedParams = paramsSerializer(params);
+  } else if (utils.isURLSearchParams(params)) {
+    serializedParams = params.toString();
+  } else {
+    var parts = [];
+
+    utils.forEach(params, function serialize(val, key) {
+      if (val === null || typeof val === 'undefined') {
+        return;
+      }
+
+      if (utils.isArray(val)) {
+        key = key + '[]';
+      } else {
+        val = [val];
+      }
+
+      utils.forEach(val, function parseValue(v) {
+        if (utils.isDate(v)) {
+          v = v.toISOString();
+        } else if (utils.isObject(v)) {
+          v = JSON.stringify(v);
+        }
+        parts.push(encode(key) + '=' + encode(v));
+      });
+    });
+
+    serializedParams = parts.join('&');
+  }
+
+  if (serializedParams) {
+    var hashmarkIndex = url.indexOf('#');
+    if (hashmarkIndex !== -1) {
+      url = url.slice(0, hashmarkIndex);
+    }
+
+    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+  }
+
+  return url;
+};
+
+},{"./../utils":38}],26:[function(require,module,exports){
+'use strict';
+
+/**
+ * Creates a new URL by combining the specified URLs
+ *
+ * @param {string} baseURL The base URL
+ * @param {string} relativeURL The relative URL
+ * @returns {string} The combined URL
+ */
+module.exports = function combineURLs(baseURL, relativeURL) {
+  return relativeURL
+    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+    : baseURL;
+};
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+module.exports = (
+  utils.isStandardBrowserEnv() ?
+
+  // Standard browser envs support document.cookie
+    (function standardBrowserEnv() {
+      return {
+        write: function write(name, value, expires, path, domain, secure) {
+          var cookie = [];
+          cookie.push(name + '=' + encodeURIComponent(value));
+
+          if (utils.isNumber(expires)) {
+            cookie.push('expires=' + new Date(expires).toGMTString());
+          }
+
+          if (utils.isString(path)) {
+            cookie.push('path=' + path);
+          }
+
+          if (utils.isString(domain)) {
+            cookie.push('domain=' + domain);
+          }
+
+          if (secure === true) {
+            cookie.push('secure');
+          }
+
+          document.cookie = cookie.join('; ');
+        },
+
+        read: function read(name) {
+          var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+          return (match ? decodeURIComponent(match[3]) : null);
+        },
+
+        remove: function remove(name) {
+          this.write(name, '', Date.now() - 86400000);
+        }
+      };
+    })() :
+
+  // Non standard browser env (web workers, react-native) lack needed support.
+    (function nonStandardBrowserEnv() {
+      return {
+        write: function write() {},
+        read: function read() { return null; },
+        remove: function remove() {}
+      };
+    })()
+);
+
+},{"./../utils":38}],28:[function(require,module,exports){
+'use strict';
+
+/**
+ * Determines whether the specified URL is absolute
+ *
+ * @param {string} url The URL to test
+ * @returns {boolean} True if the specified URL is absolute, otherwise false
+ */
+module.exports = function isAbsoluteURL(url) {
+  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
+  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
+  // by any combination of letters, digits, plus, period, or hyphen.
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
+};
+
+},{}],29:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+/**
+ * Determines whether the payload is an error thrown by Axios
+ *
+ * @param {*} payload The value to test
+ * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+ */
+module.exports = function isAxiosError(payload) {
+  return utils.isObject(payload) && (payload.isAxiosError === true);
+};
+
+},{"./../utils":38}],30:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+module.exports = (
+  utils.isStandardBrowserEnv() ?
+
+  // Standard browser envs have full support of the APIs needed to test
+  // whether the request URL is of the same origin as current location.
+    (function standardBrowserEnv() {
+      var msie = /(msie|trident)/i.test(navigator.userAgent);
+      var urlParsingNode = document.createElement('a');
+      var originURL;
+
+      /**
+    * Parse a URL to discover it's components
+    *
+    * @param {String} url The URL to be parsed
+    * @returns {Object}
+    */
+      function resolveURL(url) {
+        var href = url;
+
+        if (msie) {
+        // IE needs attribute set twice to normalize properties
+          urlParsingNode.setAttribute('href', href);
+          href = urlParsingNode.href;
+        }
+
+        urlParsingNode.setAttribute('href', href);
+
+        // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
+        return {
+          href: urlParsingNode.href,
+          protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
+          host: urlParsingNode.host,
+          search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
+          hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
+          hostname: urlParsingNode.hostname,
+          port: urlParsingNode.port,
+          pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
+            urlParsingNode.pathname :
+            '/' + urlParsingNode.pathname
+        };
+      }
+
+      originURL = resolveURL(window.location.href);
+
+      /**
+    * Determine if a URL shares the same origin as the current location
+    *
+    * @param {String} requestURL The URL to test
+    * @returns {boolean} True if URL shares the same origin, otherwise false
+    */
+      return function isURLSameOrigin(requestURL) {
+        var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+        return (parsed.protocol === originURL.protocol &&
+            parsed.host === originURL.host);
+      };
+    })() :
+
+  // Non standard browser envs (web workers, react-native) lack needed support.
+    (function nonStandardBrowserEnv() {
+      return function isURLSameOrigin() {
+        return true;
+      };
+    })()
+);
+
+},{"./../utils":38}],31:[function(require,module,exports){
+'use strict';
+
+var utils = require('../utils');
+
+module.exports = function normalizeHeaderName(headers, normalizedName) {
+  utils.forEach(headers, function processHeader(value, name) {
+    if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
+      headers[normalizedName] = value;
+      delete headers[name];
+    }
+  });
+};
+
+},{"../utils":38}],32:[function(require,module,exports){
+// eslint-disable-next-line strict
+module.exports = null;
+
+},{}],33:[function(require,module,exports){
+'use strict';
+
+var utils = require('./../utils');
+
+// Headers whose duplicates are ignored by node
+// c.f. https://nodejs.org/api/http.html#http_message_headers
+var ignoreDuplicateOf = [
+  'age', 'authorization', 'content-length', 'content-type', 'etag',
+  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
+  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
+  'referer', 'retry-after', 'user-agent'
+];
+
+/**
+ * Parse headers into an object
+ *
+ * ```
+ * Date: Wed, 27 Aug 2014 08:58:49 GMT
+ * Content-Type: application/json
+ * Connection: keep-alive
+ * Transfer-Encoding: chunked
+ * ```
+ *
+ * @param {String} headers Headers needing to be parsed
+ * @returns {Object} Headers parsed into an object
+ */
+module.exports = function parseHeaders(headers) {
+  var parsed = {};
+  var key;
+  var val;
+  var i;
+
+  if (!headers) { return parsed; }
+
+  utils.forEach(headers.split('\n'), function parser(line) {
+    i = line.indexOf(':');
+    key = utils.trim(line.substr(0, i)).toLowerCase();
+    val = utils.trim(line.substr(i + 1));
+
+    if (key) {
+      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        return;
+      }
+      if (key === 'set-cookie') {
+        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
+      } else {
+        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+      }
+    }
+  });
+
+  return parsed;
+};
+
+},{"./../utils":38}],34:[function(require,module,exports){
+'use strict';
+
+module.exports = function parseProtocol(url) {
+  var match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
+  return match && match[1] || '';
+};
+
+},{}],35:[function(require,module,exports){
+'use strict';
+
+/**
+ * Syntactic sugar for invoking a function and expanding an array for arguments.
+ *
+ * Common use case would be to use `Function.prototype.apply`.
+ *
+ *  ```js
+ *  function f(x, y, z) {}
+ *  var args = [1, 2, 3];
+ *  f.apply(null, args);
+ *  ```
+ *
+ * With `spread` this example can be re-written.
+ *
+ *  ```js
+ *  spread(function(x, y, z) {})([1, 2, 3]);
+ *  ```
+ *
+ * @param {Function} callback
+ * @returns {Function}
+ */
+module.exports = function spread(callback) {
+  return function wrap(arr) {
+    return callback.apply(null, arr);
+  };
+};
+
+},{}],36:[function(require,module,exports){
+(function (Buffer){(function (){
+'use strict';
+
+var utils = require('../utils');
+
+/**
+ * Convert a data object to FormData
+ * @param {Object} obj
+ * @param {?Object} [formData]
+ * @returns {Object}
+ **/
+
+function toFormData(obj, formData) {
+  // eslint-disable-next-line no-param-reassign
+  formData = formData || new FormData();
+
+  var stack = [];
+
+  function convertValue(value) {
+    if (value === null) return '';
+
+    if (utils.isDate(value)) {
+      return value.toISOString();
+    }
+
+    if (utils.isArrayBuffer(value) || utils.isTypedArray(value)) {
+      return typeof Blob === 'function' ? new Blob([value]) : Buffer.from(value);
+    }
+
+    return value;
+  }
+
+  function build(data, parentKey) {
+    if (utils.isPlainObject(data) || utils.isArray(data)) {
+      if (stack.indexOf(data) !== -1) {
+        throw Error('Circular reference detected in ' + parentKey);
+      }
+
+      stack.push(data);
+
+      utils.forEach(data, function each(value, key) {
+        if (utils.isUndefined(value)) return;
+        var fullKey = parentKey ? parentKey + '.' + key : key;
+        var arr;
+
+        if (value && !parentKey && typeof value === 'object') {
+          if (utils.endsWith(key, '{}')) {
+            // eslint-disable-next-line no-param-reassign
+            value = JSON.stringify(value);
+          } else if (utils.endsWith(key, '[]') && (arr = utils.toArray(value))) {
+            // eslint-disable-next-line func-names
+            arr.forEach(function(el) {
+              !utils.isUndefined(el) && formData.append(fullKey, convertValue(el));
+            });
+            return;
+          }
+        }
+
+        build(value, fullKey);
+      });
+
+      stack.pop();
+    } else {
+      formData.append(parentKey, convertValue(data));
+    }
+  }
+
+  build(obj);
+
+  return formData;
+}
+
+module.exports = toFormData;
+
+}).call(this)}).call(this,require("buffer").Buffer)
+},{"../utils":38,"buffer":40}],37:[function(require,module,exports){
+'use strict';
+
+var VERSION = require('../env/data').version;
+var AxiosError = require('../core/AxiosError');
+
+var validators = {};
+
+// eslint-disable-next-line func-names
+['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach(function(type, i) {
+  validators[type] = function validator(thing) {
+    return typeof thing === type || 'a' + (i < 1 ? 'n ' : ' ') + type;
+  };
+});
+
+var deprecatedWarnings = {};
+
+/**
+ * Transitional option validator
+ * @param {function|boolean?} validator - set to false if the transitional option has been removed
+ * @param {string?} version - deprecated version / removed since version
+ * @param {string?} message - some message with additional info
+ * @returns {function}
+ */
+validators.transitional = function transitional(validator, version, message) {
+  function formatMessage(opt, desc) {
+    return '[Axios v' + VERSION + '] Transitional option \'' + opt + '\'' + desc + (message ? '. ' + message : '');
+  }
+
+  // eslint-disable-next-line func-names
+  return function(value, opt, opts) {
+    if (validator === false) {
+      throw new AxiosError(
+        formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')),
+        AxiosError.ERR_DEPRECATED
+      );
+    }
+
+    if (version && !deprecatedWarnings[opt]) {
+      deprecatedWarnings[opt] = true;
+      // eslint-disable-next-line no-console
+      console.warn(
+        formatMessage(
+          opt,
+          ' has been deprecated since v' + version + ' and will be removed in the near future'
+        )
+      );
+    }
+
+    return validator ? validator(value, opt, opts) : true;
+  };
+};
+
+/**
+ * Assert object's properties type
+ * @param {object} options
+ * @param {object} schema
+ * @param {boolean?} allowUnknown
+ */
+
+function assertOptions(options, schema, allowUnknown) {
+  if (typeof options !== 'object') {
+    throw new AxiosError('options must be an object', AxiosError.ERR_BAD_OPTION_VALUE);
+  }
+  var keys = Object.keys(options);
+  var i = keys.length;
+  while (i-- > 0) {
+    var opt = keys[i];
+    var validator = schema[opt];
+    if (validator) {
+      var value = options[opt];
+      var result = value === undefined || validator(value, opt, options);
+      if (result !== true) {
+        throw new AxiosError('option ' + opt + ' must be ' + result, AxiosError.ERR_BAD_OPTION_VALUE);
+      }
+      continue;
+    }
+    if (allowUnknown !== true) {
+      throw new AxiosError('Unknown option ' + opt, AxiosError.ERR_BAD_OPTION);
+    }
+  }
+}
+
+module.exports = {
+  assertOptions: assertOptions,
+  validators: validators
+};
+
+},{"../core/AxiosError":14,"../env/data":23}],38:[function(require,module,exports){
+'use strict';
+
+var bind = require('./helpers/bind');
+
+// utils is a library of generic helper functions non-specific to axios
+
+var toString = Object.prototype.toString;
+
+// eslint-disable-next-line func-names
+var kindOf = (function(cache) {
+  // eslint-disable-next-line func-names
+  return function(thing) {
+    var str = toString.call(thing);
+    return cache[str] || (cache[str] = str.slice(8, -1).toLowerCase());
+  };
+})(Object.create(null));
+
+function kindOfTest(type) {
+  type = type.toLowerCase();
+  return function isKindOf(thing) {
+    return kindOf(thing) === type;
+  };
+}
+
+/**
+ * Determine if a value is an Array
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Array, otherwise false
+ */
+function isArray(val) {
+  return Array.isArray(val);
+}
+
+/**
+ * Determine if a value is undefined
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if the value is undefined, otherwise false
+ */
+function isUndefined(val) {
+  return typeof val === 'undefined';
+}
+
+/**
+ * Determine if a value is a Buffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Buffer, otherwise false
+ */
+function isBuffer(val) {
+  return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
+    && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
+}
+
+/**
+ * Determine if a value is an ArrayBuffer
+ *
+ * @function
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an ArrayBuffer, otherwise false
+ */
+var isArrayBuffer = kindOfTest('ArrayBuffer');
+
+
+/**
+ * Determine if a value is a view on an ArrayBuffer
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+ */
+function isArrayBufferView(val) {
+  var result;
+  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
+    result = ArrayBuffer.isView(val);
+  } else {
+    result = (val) && (val.buffer) && (isArrayBuffer(val.buffer));
+  }
+  return result;
+}
+
+/**
+ * Determine if a value is a String
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a String, otherwise false
+ */
+function isString(val) {
+  return typeof val === 'string';
+}
+
+/**
+ * Determine if a value is a Number
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Number, otherwise false
+ */
+function isNumber(val) {
+  return typeof val === 'number';
+}
+
+/**
+ * Determine if a value is an Object
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is an Object, otherwise false
+ */
+function isObject(val) {
+  return val !== null && typeof val === 'object';
+}
+
+/**
+ * Determine if a value is a plain Object
+ *
+ * @param {Object} val The value to test
+ * @return {boolean} True if value is a plain Object, otherwise false
+ */
+function isPlainObject(val) {
+  if (kindOf(val) !== 'object') {
+    return false;
+  }
+
+  var prototype = Object.getPrototypeOf(val);
+  return prototype === null || prototype === Object.prototype;
+}
+
+/**
+ * Determine if a value is a Date
+ *
+ * @function
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Date, otherwise false
+ */
+var isDate = kindOfTest('Date');
+
+/**
+ * Determine if a value is a File
+ *
+ * @function
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a File, otherwise false
+ */
+var isFile = kindOfTest('File');
+
+/**
+ * Determine if a value is a Blob
+ *
+ * @function
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Blob, otherwise false
+ */
+var isBlob = kindOfTest('Blob');
+
+/**
+ * Determine if a value is a FileList
+ *
+ * @function
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a File, otherwise false
+ */
+var isFileList = kindOfTest('FileList');
+
+/**
+ * Determine if a value is a Function
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Function, otherwise false
+ */
+function isFunction(val) {
+  return toString.call(val) === '[object Function]';
+}
+
+/**
+ * Determine if a value is a Stream
+ *
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a Stream, otherwise false
+ */
+function isStream(val) {
+  return isObject(val) && isFunction(val.pipe);
+}
+
+/**
+ * Determine if a value is a FormData
+ *
+ * @param {Object} thing The value to test
+ * @returns {boolean} True if value is an FormData, otherwise false
+ */
+function isFormData(thing) {
+  var pattern = '[object FormData]';
+  return thing && (
+    (typeof FormData === 'function' && thing instanceof FormData) ||
+    toString.call(thing) === pattern ||
+    (isFunction(thing.toString) && thing.toString() === pattern)
+  );
+}
+
+/**
+ * Determine if a value is a URLSearchParams object
+ * @function
+ * @param {Object} val The value to test
+ * @returns {boolean} True if value is a URLSearchParams object, otherwise false
+ */
+var isURLSearchParams = kindOfTest('URLSearchParams');
+
+/**
+ * Trim excess whitespace off the beginning and end of a string
+ *
+ * @param {String} str The String to trim
+ * @returns {String} The String freed of excess whitespace
+ */
+function trim(str) {
+  return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g, '');
+}
+
+/**
+ * Determine if we're running in a standard browser environment
+ *
+ * This allows axios to run in a web worker, and react-native.
+ * Both environments support XMLHttpRequest, but not fully standard globals.
+ *
+ * web workers:
+ *  typeof window -> undefined
+ *  typeof document -> undefined
+ *
+ * react-native:
+ *  navigator.product -> 'ReactNative'
+ * nativescript
+ *  navigator.product -> 'NativeScript' or 'NS'
+ */
+function isStandardBrowserEnv() {
+  if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||
+                                           navigator.product === 'NativeScript' ||
+                                           navigator.product === 'NS')) {
+    return false;
+  }
+  return (
+    typeof window !== 'undefined' &&
+    typeof document !== 'undefined'
+  );
+}
+
+/**
+ * Iterate over an Array or an Object invoking a function for each item.
+ *
+ * If `obj` is an Array callback will be called passing
+ * the value, index, and complete array for each item.
+ *
+ * If 'obj' is an Object callback will be called passing
+ * the value, key, and complete object for each property.
+ *
+ * @param {Object|Array} obj The object to iterate
+ * @param {Function} fn The callback to invoke for each item
+ */
+function forEach(obj, fn) {
+  // Don't bother if no value provided
+  if (obj === null || typeof obj === 'undefined') {
+    return;
+  }
+
+  // Force an array if not already something iterable
+  if (typeof obj !== 'object') {
+    /*eslint no-param-reassign:0*/
+    obj = [obj];
+  }
+
+  if (isArray(obj)) {
+    // Iterate over array values
+    for (var i = 0, l = obj.length; i < l; i++) {
+      fn.call(null, obj[i], i, obj);
+    }
+  } else {
+    // Iterate over object keys
+    for (var key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        fn.call(null, obj[key], key, obj);
+      }
+    }
+  }
+}
+
+/**
+ * Accepts varargs expecting each argument to be an object, then
+ * immutably merges the properties of each object and returns result.
+ *
+ * When multiple objects contain the same key the later object in
+ * the arguments list will take precedence.
+ *
+ * Example:
+ *
+ * ```js
+ * var result = merge({foo: 123}, {foo: 456});
+ * console.log(result.foo); // outputs 456
+ * ```
+ *
+ * @param {Object} obj1 Object to merge
+ * @returns {Object} Result of all merge properties
+ */
+function merge(/* obj1, obj2, obj3, ... */) {
+  var result = {};
+  function assignValue(val, key) {
+    if (isPlainObject(result[key]) && isPlainObject(val)) {
+      result[key] = merge(result[key], val);
+    } else if (isPlainObject(val)) {
+      result[key] = merge({}, val);
+    } else if (isArray(val)) {
+      result[key] = val.slice();
+    } else {
+      result[key] = val;
+    }
+  }
+
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    forEach(arguments[i], assignValue);
+  }
+  return result;
+}
+
+/**
+ * Extends object a by mutably adding to it the properties of object b.
+ *
+ * @param {Object} a The object to be extended
+ * @param {Object} b The object to copy properties from
+ * @param {Object} thisArg The object to bind function to
+ * @return {Object} The resulting value of object a
+ */
+function extend(a, b, thisArg) {
+  forEach(b, function assignValue(val, key) {
+    if (thisArg && typeof val === 'function') {
+      a[key] = bind(val, thisArg);
+    } else {
+      a[key] = val;
+    }
+  });
+  return a;
+}
+
+/**
+ * Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
+ *
+ * @param {string} content with BOM
+ * @return {string} content value without BOM
+ */
+function stripBOM(content) {
+  if (content.charCodeAt(0) === 0xFEFF) {
+    content = content.slice(1);
+  }
+  return content;
+}
+
+/**
+ * Inherit the prototype methods from one constructor into another
+ * @param {function} constructor
+ * @param {function} superConstructor
+ * @param {object} [props]
+ * @param {object} [descriptors]
+ */
+
+function inherits(constructor, superConstructor, props, descriptors) {
+  constructor.prototype = Object.create(superConstructor.prototype, descriptors);
+  constructor.prototype.constructor = constructor;
+  props && Object.assign(constructor.prototype, props);
+}
+
+/**
+ * Resolve object with deep prototype chain to a flat object
+ * @param {Object} sourceObj source object
+ * @param {Object} [destObj]
+ * @param {Function} [filter]
+ * @returns {Object}
+ */
+
+function toFlatObject(sourceObj, destObj, filter) {
+  var props;
+  var i;
+  var prop;
+  var merged = {};
+
+  destObj = destObj || {};
+
+  do {
+    props = Object.getOwnPropertyNames(sourceObj);
+    i = props.length;
+    while (i-- > 0) {
+      prop = props[i];
+      if (!merged[prop]) {
+        destObj[prop] = sourceObj[prop];
+        merged[prop] = true;
+      }
+    }
+    sourceObj = Object.getPrototypeOf(sourceObj);
+  } while (sourceObj && (!filter || filter(sourceObj, destObj)) && sourceObj !== Object.prototype);
+
+  return destObj;
+}
+
+/*
+ * determines whether a string ends with the characters of a specified string
+ * @param {String} str
+ * @param {String} searchString
+ * @param {Number} [position= 0]
+ * @returns {boolean}
+ */
+function endsWith(str, searchString, position) {
+  str = String(str);
+  if (position === undefined || position > str.length) {
+    position = str.length;
+  }
+  position -= searchString.length;
+  var lastIndex = str.indexOf(searchString, position);
+  return lastIndex !== -1 && lastIndex === position;
+}
+
+
+/**
+ * Returns new array from array like object
+ * @param {*} [thing]
+ * @returns {Array}
+ */
+function toArray(thing) {
+  if (!thing) return null;
+  var i = thing.length;
+  if (isUndefined(i)) return null;
+  var arr = new Array(i);
+  while (i-- > 0) {
+    arr[i] = thing[i];
+  }
+  return arr;
+}
+
+// eslint-disable-next-line func-names
+var isTypedArray = (function(TypedArray) {
+  // eslint-disable-next-line func-names
+  return function(thing) {
+    return TypedArray && thing instanceof TypedArray;
+  };
+})(typeof Uint8Array !== 'undefined' && Object.getPrototypeOf(Uint8Array));
+
+module.exports = {
+  isArray: isArray,
+  isArrayBuffer: isArrayBuffer,
+  isBuffer: isBuffer,
+  isFormData: isFormData,
+  isArrayBufferView: isArrayBufferView,
+  isString: isString,
+  isNumber: isNumber,
+  isObject: isObject,
+  isPlainObject: isPlainObject,
+  isUndefined: isUndefined,
+  isDate: isDate,
+  isFile: isFile,
+  isBlob: isBlob,
+  isFunction: isFunction,
+  isStream: isStream,
+  isURLSearchParams: isURLSearchParams,
+  isStandardBrowserEnv: isStandardBrowserEnv,
+  forEach: forEach,
+  merge: merge,
+  extend: extend,
+  trim: trim,
+  stripBOM: stripBOM,
+  inherits: inherits,
+  toFlatObject: toFlatObject,
+  kindOf: kindOf,
+  kindOfTest: kindOfTest,
+  endsWith: endsWith,
+  toArray: toArray,
+  isTypedArray: isTypedArray,
+  isFileList: isFileList
+};
+
+},{"./helpers/bind":24}],39:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -150,7 +3576,7 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],2:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -1931,7 +5357,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":1,"buffer":2,"ieee754":3}],3:[function(require,module,exports){
+},{"base64-js":39,"buffer":40,"ieee754":41}],41:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -2018,7 +5444,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],4:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -2204,3428 +5630,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],5:[function(require,module,exports){
-const allplayerjson = require("../resource/allplayersCricket.json");
-//const allplayerjsonFootball = require("../resource/footballPlayer.json")
-const shortformCountry = require("../resource/shortformCountry.json");
-const utils=require('../js/utils')
-
-module.exports.scorecard =  
-{
-    beforeRender : async ()=> 
-    {
-        // $('.content').html(``)
-    },
-
-    render  : async () => {    
-        var data = await utils.getUpcomingMatches();
-            console.log(data[0]);
-         var html = '' ;
-            for(var i of data ){
-             console.log(i)
-                var matchTeam1 =i['match'].split(",")[0].split('vs')[0].trim();
-                var matchTeam2 =i['match'].split(",")[0].split('vs')[1].trim();
-                var matchTime = i["time"].split("/")[0];
-                var matchLocation = i["match"].split("     ")[1];
-                var tornament = i['tornament'].trim()
-                var contestLink =  '/#/playerSelect/' +i['match_link'].split('/')[3];
-
-                // $('.content').append(
-               html = html  + 
-                 `<article class="card">
-                <div class="container">
-                <div class="match">
-                    <div class="match-header">
-                        <div class="match-status">6 hours</div>
-                        <div class="match-tournament"><img src="https://images.pitchero.com/counties/94/1657009271_original.jpeg" />${tornament}</div>
-                        <div class="match-actions">
-                        </div>
-                    </div>
-                    <div class="match-content">
-                        <div class="column">
-                            <div class="team team--home">
-                                <div class="team-logo">
-                                    <img src="${allplayerjson[matchTeam1+'Logo']}" />
-                                </div>
-                                <h2 class="team-name">${matchTeam1}</h2>
-                            </div>
-                        </div>
-                        <div class="column">
-                            <div class="match-details">
-                                <div class="match-date">
-                                    <strong>${matchTime}</strong>
-                                </div>
-                                <div class="location">
-                                    at <strong>${matchLocation}</strong>
-                                </div>
-                                <a class="match-bet-place" href=${contestLink} > Join Contest </a>
-                            </div>
-                        </div>
-                        <div class="column">
-                            <div class="team team--away">
-                                <div class="team-logo">
-                                    <img src="${allplayerjson[matchTeam2+'Logo']}" />
-                                </div>
-                                <h2 class="team-name">${matchTeam2}</h2>
-                            </div></div>
-                             </div>
-                            </div>
-                            </div>
-                          </article>`
-                          
-             }
-            $('.content').html(`<div class="content-main">
-             <div class="card-grid" id="scorecard">${html} </div></div>`) 
-    }
-}
-
-//player select page
-const footballLogo = require('../resource/fifaWorldCupLogo.json');
-module.exports.playerSelect =  {
-    beforeRender : async ()=>
-    {
-    },
-
-    render  : async ()=> 
-    {
-        const params = utils.parseurl().id.split('-') ;
-       // console.log(allplayerjson[shortformCountry[params[0]]])
-        var teams = [ shortformCountry[params[0]] ,  shortformCountry[params[2]] ];
-        var html = '';
-        for(var i of teams){
-            console.log(i);
-            for(var eachplayer of allplayerjson[i]){
-                html = html +  ` <div class="player cardplayer">
-                <div class="pic">
-                    <img src="${eachplayer.playerPic}">
-                </div>
-                <div class="info">
-                    <div class="name">${eachplayer.playerName}</div>
-                    <div class="position"> Position : Cricketer </div>
-                <!--<div class="position">Position : ${eachplayer.position}</div> <div class="club">Club: ${eachplayer.club}</div>
-                    <div class="stats">Age:${eachplayer.age} , Goals:${eachplayer.goal} ,  Caps :${eachplayer.caps}</div> 
-                -->
-
-                    <div class="logo">
-                    <!--  <img src="${footballLogo[i]}"> -->
-                    <img src="${allplayerjson[i+'Logo']}"> 
-                    </div>
-                </div>
-            </div>`
-            }
-        }
-
-        $(".content").html(`
-        <h2>Select Your Best Eleven</h2>
-        <a id="confirm">Confirm team</a>
-        <div class="app" id="app">
-        <div> 
-        <div class="players">
-        <div class="toolbar">
-             <input type="text" id="query" class="search" placeholder="Search players by name or team"/> ${html}
-        </div></div></div></div>
-        <script>
-            $(".player").click(function(){
-                $(this).toggleClass("selected");
-            })
-        </script>`
-        );
-    },
-    afterRender : async ()=>
-    {
-        $("#confirm").click(function (e) { 
-            var arr =[];
-            document.querySelectorAll('.selected .name').forEach((num)=>{arr.push(num.innerText)});
-            console.log(arr);
-            localStorage.setItem('contest834084' ,JSON.stringify(arr));
-            utils.postresult({'userID' : arr});
-        });
-    },
-}
-
-
-
-module.exports.SignIn =  {
-    beforeRender : async ()=>
-    {
-    },
-
-    render  : async ()=> 
-    {
-        if(localStorage.UserName){
-            var userData = JSON.parse(localStorage.UserName);
-            $(".content").html(` 
-            <div class="content-main">
-             <div class="card-grid" id="scorecard">
-             <div>name: ${userData.displayName}</div>
-             <div>uid : ${userData.uid}</div>
-             <div>email : ${userData.email}</div>
-            <div>
-                <img src="${userData.photoURL}"
-            </div>
-            <div>provider Type : ${userData.providerId}</div> 
-            </div></div>`);
-        }
-        else{
-        $(".content").html(` 
-        <script>
-          // Initialize Firebase
-          var config = {
-            apiKey: "AIzaSyDAnsBzMdKSaAOUthND3an_pCFGtPFqvBU",
-            authDomain: "yamin2002.firebaseapp.com",
-          };
-          firebase.initializeApp(config);
-        </script>
-
-      <!-- Dialogue Box -->
-      <div class="dialogueBox">
-          <p id="closeDialogue" style="float:right"><i class="fa fa-times-circle"></i></p>
-          <div id="firebaseui-auth-container"></div>
-      </div>`);
-        }
-    },
-    afterRender : async ()=>{
-        var uiConfig = {
-            'callbacks': {
-                'signInSuccess': async function(currentUser, credential, redirectUrl) {
-                    var userStuff = currentUser.providerData[0] ;
-                    var userAccount = await utils.userbaseUpdate(
-                        {'uid' : userStuff.uid , 
-                         'name' : userStuff.displayName,
-                         'email' : userStuff.email,
-                         'providerId' :userStuff.providerId 
-                        });
-                    localStorage.setItem('AccountBalance' , userAccount)
-                    localStorage.setItem('UserName',JSON.stringify(userStuff));
-                    location.href = "http://localhost:5500/#/signin" ;
-                    return false;
-                }
-                },
-                'signInOptions': [
-                firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-                firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-                ],
-            };
-            var ui = new firebaseui.auth.AuthUI(firebase.auth());
-            ui.start('#firebaseui-auth-container', uiConfig);
-    }
-}
-
-},{"../js/utils":7,"../resource/allplayersCricket.json":8,"../resource/fifaWorldCupLogo.json":9,"../resource/shortformCountry.json":10}],6:[function(require,module,exports){
-var allpage = require('./allpage');
-var utils = require('./utils')
-
-const screenurl = {
-  '/' : allpage.scorecard ,
-  '/home' : allpage.scorecard , 
-  '/playerselect/:id' : allpage.playerSelect ,
-  '/signin' : allpage.SignIn ,
-}
-
-const loader = async () => {
-  const request = utils.parseurl();
-  const parseUrl = (request.resource ? `/${request.resource}` : '/' ) + (request.id? '/:id': '')
-  var screen = screenurl[parseUrl];
-  await screen.render();
-  await screen.afterRender();
-} 
-
-
-window.addEventListener('hashchange' , loader);
-window.addEventListener('load' , loader)
-},{"./allpage":5,"./utils":7}],7:[function(require,module,exports){
-const axios = require('axios');
-
-module.exports.parseurl = () => {
-    const url = document.location.hash.toLowerCase();
-    const request = url.split('/');
-    return {
-        resource: request[1],
-        id: request[2] 
-    }
-}
-
-module.exports.getUpcomingMatches  = async() =>{
-    const res = await axios({
-        url : `http://127.0.0.1:5000/getUpcommingMatches`,
-        method:'GET' ,
-        headers :  {
-            "Content-Type" : 'application/json',
-        },
-    })
-    return res.data
-  }
-
-  module.exports.postresult  = async(json) =>{
-    const res = await axios({
-        url : `http://127.0.0.1:5000/userplayerselection`,
-        method:'POST' ,
-        headers :  {
-            "Content-Type" : 'application/json',
-        },
-        data:json ,
-    })
-   // return res.data
-  }
-
-  module.exports.userbaseUpdate  = async(json) =>{
-    const res = await axios({
-        url : `http://127.0.0.1:5000/userbase`,
-        method:'POST' ,
-        headers :  {
-            "Content-Type" : 'application/json',
-        },
-        data:json
-    })
-    return res.data
-  }
-},{"axios":11}],8:[function(require,module,exports){
-module.exports={
-    "Australia":[
-       {
-          "playerName":"Mitchell Marsh",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4601.1666950843.jpg"
-       },
-       {
-          "playerName":"Mitchell Starc",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/4910.1666950862.jpg"
-       },
-       {
-          "playerName":"Tim David",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/11463.1666950929.jpg"
-       },
-       {
-          "playerName":"Ashton Agar",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5358.1666950681.jpg"
-       },
-       {
-          "playerName":"Adam Zampa",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5955.1666950659.jpg"
-       },
-       {
-          "playerName":"Glenn Maxwell",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4894.1666950723.jpg"
-       },
-       {
-          "playerName":"David Warner",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/4275.1666950705.jpg"
-       },
-       {
-          "playerName":"Pat Cummins",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/5164.1666950884.jpg"
-       },
-       {
-          "playerName":"Steven Smith",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/4552.1666950912.jpg"
-       },
-       {
-          "playerName":"Marcus Stoinis",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/5957.1666950791.jpg"
-       },
-       {
-          "playerName":"Cameron Green",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/10749.1667214852.jpg"
-       },
-       {
-          "playerName":"Josh Inglis",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7636.1634648498.jpg"
-       },
-       {
-          "playerName":"Aaron Finch",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/4780.1666950641.jpg"
-       },
-       {
-          "playerName":"Kane Richardson",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/5180.1666950770.jpg"
-       },
-       {
-          "playerName":"Matthew Wade",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/4555.1666950822.jpg"
-       },
-       {
-          "playerName":"Josh Hazlewood",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/4818.1666950750.jpg"
-       }
-    ],
-    "AustraliaLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-1.1627678833.png",
-    "England":[
-       {
-          "playerName":"Ben Stokes",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/4489.1666951203.jpg"
-       },
-       {
-          "playerName":"Philip Salt",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/8012.1666951499.jpg"
-       },
-       {
-          "playerName":"Dawid Malan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4041.1666951343.jpg"
-       },
-       {
-          "playerName":"Liam Livingstone",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/6724.1666951435.jpg"
-       },
-       {
-          "playerName":"David Willey",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/4475.1666951320.jpg"
-       },
-       {
-          "playerName":"Jos Buttler",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/4456.1666951408.jpg"
-       },
-       {
-          "playerName":"Tymal Mills",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/4973.1666951547.jpg"
-       },
-       {
-          "playerName":"Adil Rashid",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/3899.1666951137.jpg"
-       },
-       {
-          "playerName":"Sam Curran",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/7888.1666951518.jpg"
-       },
-       {
-          "playerName":"Harry Brook",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/9845.1666951375.jpg"
-       },
-       {
-          "playerName":"Chris Woakes",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4074.1666951272.jpg"
-       },
-       {
-          "playerName":"Moeen Ali",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/3992.1666951473.jpg"
-       },
-       {
-          "playerName":"Alex Hales",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/4150.1666951159.jpg"
-       },
-       {
-          "playerName":"Chris Jordan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/3870.1666951242.jpg"
-       },
-       {
-          "playerName":"Mark Wood",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5055.1666951451.jpg"
-       }
-    ],
-    "EnglandLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-2.1627678833.png",
-    "India":[
-       {
-          "playerName":"Suryakumar Yadav",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/5089.1666934155.jpg"
-       },
-       {
-          "playerName":"Hardik Pandya",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/7780.1666933992.jpg"
-       },
-       {
-          "playerName":"Bhuvneshwar Kumar",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4384.1666933930.jpg"
-       },
-       {
-          "playerName":"Mohammed Shami",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5051.1666934188.jpg"
-       },
-       {
-          "playerName":"Lokesh Rahul",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/6698.1666934039.jpg"
-       },
-       {
-          "playerName":"Harshal Patel",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/5343.1666934010.jpg"
-       },
-       {
-          "playerName":"Rohit Sharma",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/3516.1666934133.jpg"
-       },
-       {
-          "playerName":"Axar Patel",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/6626.1666933867.jpg"
-       },
-       {
-          "playerName":"Yuzvendra Chahal",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5085.1666934204.jpg"
-       },
-       {
-          "playerName":"Rishabh Pant",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/8229.1666934084.jpg"
-       },
-       {
-          "playerName":"Ravichandran Ashwin",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/3795.1666934121.jpg"
-       },
-       {
-          "playerName":"Dinesh Karthik",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/3210.1666933974.jpg"
-       },
-       {
-          "playerName":"Deepak Hooda",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7106.1666933955.jpg"
-       },
-       {
-          "playerName":"Virat Kohli",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/3788.1666934063.jpg"
-       },
-       {
-          "playerName":"Arshdeep Singh",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11524.1666933887.jpg"
-       }
-    ],
-    "IndiaLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-3.1627678833.png",
-    "New Zealand":[
-       {
-          "playerName":"Adam Milne",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4881.1666951612.jpg"
-       },
-       {
-          "playerName":"Martin Guptill",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4274.1666951902.jpg"
-       },
-       {
-          "playerName":"Trent Boult",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4281.1666952027.jpg"
-       },
-       {
-          "playerName":"Mark Chapman",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/6965.1666951871.jpg"
-       },
-       {
-          "playerName":"Lockie Ferguson",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/6992.1666951828.jpg"
-       },
-       {
-          "playerName":"Ish Sodhi",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5388.1666951724.jpg"
-       },
-       {
-          "playerName":"Michael Bracewell",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/6813.1666951961.jpg"
-       },
-       {
-          "playerName":"Finn Allen",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/8316.1666951678.jpg"
-       },
-       {
-          "playerName":"Glenn Phillips",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/7670.1666951693.jpg"
-       },
-       {
-          "playerName":"Mitchell Santner",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7526.1666951992.jpg"
-       },
-       {
-          "playerName":"Tim Southee",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/3652.1666952010.jpg"
-       },
-       {
-          "playerName":"Kane Williamson",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/4637.1666951797.jpg"
-       },
-       {
-          "playerName":"Daryl Mitchell",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/6881.1666951635.jpg"
-       },
-       {
-          "playerName":"Jimmy Neesham",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5978.1666951751.jpg"
-       },
-       {
-          "playerName":"Devon Conway",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/7559.1666951660.jpg"
-       }
-    ],
-    "New ZealandLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-4.1627678833.png",
-    "Pakistan":[
-       {
-          "playerName":"Iftikhar Ahmed",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8121.1666936174.jpg"
-       },
-       {
-          "playerName":"Asif Ali",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/6806.1666936030.jpg"
-       },
-       {
-          "playerName":"Shadab Khan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/8429.1666936350.jpg"
-       },
-       {
-          "playerName":"Muhammad Hasnain",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/11888.1666936248.jpg"
-       },
-       {
-          "playerName":"Mohammad Rizwan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/6743.1666936297.jpg"
-       },
-       {
-          "playerName":"Haris Rauf",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/12268.1666936164.jpg"
-       },
-       {
-          "playerName":"Shaheen Afridi",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/11425.1666936387.jpg"
-       },
-       {
-          "playerName":"Naseem Shah",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/13045.1666936331.jpg"
-       },
-       {
-          "playerName":"Shan Masood",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/6801.1666936410.jpg"
-       },
-       {
-          "playerName":"Khushdil Shah",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/11055.1666936199.jpg"
-       },
-       {
-          "playerName":"Fakhar Zaman",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/8192.1666936119.jpg"
-       },
-       {
-          "playerName":"Muhammad Wasim",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/13333.1666936317.jpg"
-       },
-       {
-          "playerName":"Babar Azam",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5601.1666936227.jpg"
-       },
-       {
-          "playerName":"Haider Ali",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/13127.1666936135.jpg"
-       },
-       {
-          "playerName":"Mohammad Nawaz",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/5612.1666936277.jpg"
-       }
-    ],
-    "PakistanLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-5.1627678833.png",
-    "South Africa":[
-       {
-          "playerName":"Aiden Markram",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/7165.1666955142.jpg"
-       },
-       {
-          "playerName":"Lungi Ngidi",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8171.1666955289.jpg"
-       },
-       {
-          "playerName":"Marco Jansen",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/12663.1666955314.jpg"
-       },
-       {
-          "playerName":"Tristan Stubbs",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/14343.1666955470.jpg"
-       },
-       {
-          "playerName":"Keshav Maharaj",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/7529.1666955262.jpg"
-       },
-       {
-          "playerName":"David Miller",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4804.1666955194.jpg"
-       },
-       {
-          "playerName":"Temba Bavuma",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5885.1666955453.jpg"
-       },
-       {
-          "playerName":"Anrich Nortje",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/11455.1666955174.jpg"
-       },
-       {
-          "playerName":"Quinton de Kock",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5648.1666955349.jpg"
-       },
-       {
-          "playerName":"Wayne Parnell",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/4279.1666955484.jpg"
-       },
-       {
-          "playerName":"Reeza Hendricks",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/7609.1666955366.jpg"
-       },
-       {
-          "playerName":"Heinrich Klaasen",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/7620.1666955225.jpg"
-       },
-       {
-          "playerName":"Kagiso Rabada",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/6580.1666955242.jpg"
-       },
-       {
-          "playerName":"Rilee Rossouw",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/4546.1666955420.jpg"
-       },
-       {
-          "playerName":"Tabraiz Shamsi",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/7584.1666955443.jpg"
-       }
-    ],
-    "South AfricaLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-6.1627678833.png",
-    "Sri Lanka":[
-       {
-          "playerName":"Danushka Gunathilaka",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/5702.1506322316.jpg"
-       },
-       {
-          "playerName":"Dushmantha Chameera",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5708.1521441852.jpg"
-       },
-       {
-          "playerName":"Dilshan Madushanka",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/13341.1661322815.jpg"
-       },
-       {
-          "playerName":"Jeffrey Vandersay",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/7990.1667187673.jpg"
-       },
-       {
-          "playerName":"Maheesh Theekshana",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/14211.1667187996.jpg"
-       },
-       {
-          "playerName":"Wanindu Hasaranga",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8261.1667188099.jpg"
-       },
-       {
-          "playerName":"Lahiru Kumara",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/8265.1505978744.jpg"
-       },
-       {
-          "playerName":"Dasun Shanaka",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/5734.1667187424.jpg"
-       },
-       {
-          "playerName":"Asitha Fernando",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/8262.1521441442.jpg"
-       },
-       {
-          "playerName":"Chamika Karunaratne",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/11119.1667187351.jpg"
-       },
-       {
-          "playerName":"Kusal Mendis",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/7167.1667187715.jpg"
-       },
-       {
-          "playerName":"Dhananjaya de Silva",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/5736.1667187628.jpg"
-       },
-       {
-          "playerName":"Pathum Nissanka",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/10705.1667188052.jpg"
-       },
-       {
-          "playerName":"Ashen Bandara",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/10707.1667187221.jpg"
-       },
-       {
-          "playerName":"Kasun Rajitha",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/8510.1562063000.jpg"
-       },
-       {
-          "playerName":"Binura Fernando",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/7172.1571375341.jpg"
-       },
-       {
-          "playerName":"Charith Asalanka",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/8255.1667187402.jpg"
-       },
-       {
-          "playerName":"Pramod Madushan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/15987.1667188076.jpg"
-       },
-       {
-          "playerName":"Bhanuka Rajapaksa",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/5177.1667187309.jpg"
-       }
-    ],
-    "Sri LankaLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-7.1627678833.png",
-    "West Indies":[
-       {
-          "playerName":"Devon Thomas",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/4508..jpg"
-       },
-       {
-          "playerName":"Jermaine Blackwood",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/6759.1526043092.jpg"
-       },
-       {
-          "playerName":"Kyle Mayers",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/5212.1667214608.jpg"
-       },
-       {
-          "playerName":"Sharmarh Brooks",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/6011.1667214761.jpg"
-       },
-       {
-          "playerName":"Jason Holder",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5211.1667214545.jpg"
-       },
-       {
-          "playerName":"Roston Chase",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/6012.1526043425.jpg"
-       },
-       {
-          "playerName":"Kemar Roach",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4084.1526043122.jpg"
-       },
-       {
-          "playerName":"Kraigg Brathwaite",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4501.1526043242.jpg"
-       },
-       {
-          "playerName":"Tagenarine Chanderpaul",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/7201..jpg"
-       },
-       {
-          "playerName":"Anderson Phillip",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/9832..jpg"
-       },
-       {
-          "playerName":"Nkrumah Bonner",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/4922..jpg"
-       },
-       {
-          "playerName":"Jayden Seales",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/13096.1643871893.jpg"
-       },
-       {
-          "playerName":"Joshua Da Silva",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/13434..jpg"
-       },
-       {
-          "playerName":"Alzarri Joseph",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/7223.1667214465.jpg"
-       },
-       {
-          "playerName":"Raymon Reifer",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/6017.1667214725.jpg"
-       }
-    ],
-    "West IndiesLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-8.1627678833.png",
-    "Bangladesh":[
-       {
-          "playerName":"Taskin Ahmed",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/5563.1506324115.jpg"
-       },
-       {
-          "playerName":"Nurul Hasan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/5564.1661323694.jpg"
-       },
-       {
-          "playerName":"Soumya Sarkar",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/5570.1506323939.jpg"
-       },
-       {
-          "playerName":"Yasir Ali",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/7087.1666680914.jpg"
-       },
-       {
-          "playerName":"Nazmul Hossain Shanto",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/6753.1666680885.jpg"
-       },
-       {
-          "playerName":"Hasan Mahmud",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/11572.1661323365.jpg"
-       },
-       {
-          "playerName":"Liton Das",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/5567.1506323355.jpg"
-       },
-       {
-          "playerName":"Mehedi Hasan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/6750.1506323385.jpg"
-       },
-       {
-          "playerName":"Mustafizur Rahman",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/6752.1644671504.jpg"
-       },
-       {
-          "playerName":"Shakib Al Hasan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/3420.1506323766.jpg"
-       },
-       {
-          "playerName":"Nasum Ahmed",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5561.1661323623.jpg"
-       },
-       {
-          "playerName":"Afif Hossain",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/10830.1571724978.jpg"
-       },
-       {
-          "playerName":"Mosaddek Hossain",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/5560.1506323656.jpg"
-       },
-       {
-          "playerName":"Ebadat Hossain",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/10757.1571727413.jpg"
-       },
-       {
-          "playerName":"Shoriful Islam",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/12317.1643880739.jpg"
-       }
-    ],
-    "BangladeshLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-10.1627678833.png",
-    "Ireland":[
-       {
-          "playerName":"Paul Stirling",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/3662.1666952819.jpg"
-       },
-       {
-          "playerName":"Joshua Little",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/8464.1666952774.jpg"
-       },
-       {
-          "playerName":"Gareth Delany",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/12732.1666952710.jpg"
-       },
-       {
-          "playerName":"Mark Adair",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/8089.1666952808.jpg"
-       },
-       {
-          "playerName":"George Dockrell",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/4777.1666952731.jpg"
-       },
-       {
-          "playerName":"Conor Olphert",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/15991.1666952645.jpg"
-       },
-       {
-          "playerName":"Stephen Doheny",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/8465.1666952870.jpg"
-       },
-       {
-          "playerName":"Fionn Hand",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/12740.1666952668.jpg"
-       },
-       {
-          "playerName":"Barry McCarthy",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/5526.1666952626.jpg"
-       },
-       {
-          "playerName":"Curtis Campher",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/12025.1666952657.jpg"
-       },
-       {
-          "playerName":"Simi Singh",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/11215.1666952836.jpg"
-       },
-       {
-          "playerName":"Lorcan Tucker",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/8462.1666952790.jpg"
-       },
-       {
-          "playerName":"Graham Hume",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/16040.1666952741.jpg"
-       },
-       {
-          "playerName":"Andrew Balbirnie",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/4828.1666952600.jpg"
-       },
-       {
-          "playerName":"Harry Tector",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/8466.1666952751.jpg"
-       }
-    ],
-    "IrelandLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-24.1627678833.png",
-    "Zimbabwe":[
-       {
-          "playerName":"Craig Ervine",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/4790.1667212024.jpg"
-       },
-       {
-          "playerName":"Wellington Masakadza",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5695.1667212307.jpg"
-       },
-       {
-          "playerName":"Tony Munyonga",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/12659.1667212282.jpg"
-       },
-       {
-          "playerName":"Clive Madande",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/15451.1667211988.jpg"
-       },
-       {
-          "playerName":"Brad Evans",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/11963.1667211956.jpg"
-       },
-       {
-          "playerName":"Luke Jongwe",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/5692.1666346467.jpg"
-       },
-       {
-          "playerName":"Tendai Chatara",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/4815.1667212260.jpg"
-       },
-       {
-          "playerName":"Wesley Madhevere",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8391.1667212327.jpg"
-       },
-       {
-          "playerName":"Richard Ngarava",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/8395.1667212163.jpg"
-       },
-       {
-          "playerName":"Sean Williams",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/3270.1667212214.jpg"
-       },
-       {
-          "playerName":"Ryan Burl",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/5689.1667212185.jpg"
-       },
-       {
-          "playerName":"Milton Shumba",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/8399.1666346493.jpg"
-       },
-       {
-          "playerName":"Blessing Muzarabani",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/11612.1667211897.jpg"
-       },
-       {
-          "playerName":"Sikandar Raza",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/6701.1667212231.jpg"
-       },
-       {
-          "playerName":"Regis Chakabva",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/3597.1667212106.jpg"
-       }
-    ],
-    "ZimbabweLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-9.1627678833.png",
-    "Afghanistan":[
-       {
-          "playerName":"Darwish Rasooli",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11604.1666952213.jpg"
-       },
-       {
-          "playerName":"Rahmanullah Gurbaz",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/11600.1666952321.jpg"
-       },
-       {
-          "playerName":"Usman Ghani",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/7085.1666952515.jpg"
-       },
-       {
-          "playerName":"Fareed Ahmad",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/5549.1527050815.jpg"
-       },
-       {
-          "playerName":"Najibullah Zadran",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/5510.1666952428.jpg"
-       },
-       {
-          "playerName":"Hazrat Zazai",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/10844.1666952371.jpg"
-       },
-       {
-          "playerName":"Mohammad Nabi",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/4307.1666952399.jpg"
-       },
-       {
-          "playerName":"Gulbadin Naib",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/5137.1527050822.jpg"
-       },
-       {
-          "playerName":"Fazal",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/13162.1666952285.jpg"
-       },
-       {
-          "playerName":"Rashid Khan",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/8141.1666952468.jpg"
-       },
-       {
-          "playerName":"Naveen-ul-Haq",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/8504.1666952440.jpg"
-       },
-       {
-          "playerName":"Qais Ahmad",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/8444.1666952457.jpg"
-       },
-       {
-          "playerName":"Ibrahim Zadran",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/11707.1666952385.jpg"
-       },
-       {
-          "playerName":"Saleem Safi",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/14409.1666952537.jpg"
-       },
-       {
-          "playerName":"Mujeeb Zadran",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11484.1666952412.jpg"
-       },
-       {
-          "playerName":"Azmatullah",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/11606.1666952196.jpg"
-       }
-    ],
-    "AfghanistanLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-95.1627678833.png",
-    "Scotland":[
-       {
-          "playerName":"Safyaan Sharif",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/5123.1666938081.jpg"
-       },
-       {
-          "playerName":"Chris Greaves",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/12332.1666351934.jpg"
-       },
-       {
-          "playerName":"Chris Sole",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/7158.1666351965.jpg"
-       },
-       {
-          "playerName":"Michael Jones",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/11718.1666352211.jpg"
-       },
-       {
-          "playerName":"Mark Watt",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7156.1666352112.jpg"
-       },
-       {
-          "playerName":"Richard Berrington",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/4132.1666352278.jpg"
-       },
-       {
-          "playerName":"Hamza Tahir",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/2/12042.1666352056.jpg"
-       },
-       {
-          "playerName":"George Munsey",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/6/7856.1666938066.jpg"
-       },
-       {
-          "playerName":"Matthew Cross",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/5631.1666352139.jpg"
-       },
-       {
-          "playerName":"Craig Wallace",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/5148.1666352003.jpg"
-       },
-       {
-          "playerName":"Josh Davey",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/4758.1666352085.jpg"
-       },
-       {
-          "playerName":"Brandon McMullen",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/16414..jpg"
-       },
-       {
-          "playerName":"Calum MacLeod",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/4154.1666351894.jpg"
-       },
-       {
-          "playerName":"Brad Wheal",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/7/7797.1666938047.jpg"
-       },
-       {
-          "playerName":"Michael Leask",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/0/6710.1666352235.jpg"
-       }
-    ],
-    "ScotlandLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-15.1627678833.png",
-    "Netherlands":[
-       {
-          "playerName":"Teja Nidamanuru",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11624.1666688670.jpg"
-       },
-       {
-          "playerName":"Bas de Leede",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/11883.1666334180.jpg"
-       },
-       {
-          "playerName":"Paul van Meekeren",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/6704.1666334324.jpg"
-       },
-       {
-          "playerName":"Tom Cooper",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/4801.1666682221.jpg"
-       },
-       {
-          "playerName":"Colin Ackermann",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/7569.1666680791.jpg"
-       },
-       {
-          "playerName":"Max O'Dowd",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/1/7861.1666334297.jpg"
-       },
-       {
-          "playerName":"Brandon Glover",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/7408.1666334216.jpg"
-       },
-       {
-          "playerName":"Timm van der Gugten",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/5225.1666334398.jpg"
-       },
-       {
-          "playerName":"Fredrick Klaassen",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/5/7975.1666334252.jpg"
-       },
-       {
-          "playerName":"Scott Edwards",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/11824.1666682201.jpg"
-       },
-       {
-          "playerName":"Vikram Singh",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/4/12954.1666938017.jpg"
-       },
-       {
-          "playerName":"Shariz Ahmad",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/15578.1666937980.jpg"
-       },
-       {
-          "playerName":"Stephan Myburgh",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/3/5223.1666334373.jpg"
-       },
-       {
-          "playerName":"Logan van Beek",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/5739.1666334275.jpg"
-       },
-       {
-          "playerName":"Roelof van der Merwe",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/9/4299.1666334348.jpg"
-       },
-       {
-          "playerName":"Tim Pringle",
-          "playerPic":"https://www.mykhel.com/thumb/247x100x233/cricket/players/8/12718.1666334416.jpg"
-       }
-    ],
-    "NetherlandsLogo":"https://www.mykhel.com/common_dynamic/images/common/desk/flags/big/os-14.1627678833.png"
- }
-},{}],9:[function(require,module,exports){
-module.exports={
-    "Ecuador": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/FEF_logo.svg/160px-FEF_logo.svg.png",
-    "Netherlands": "https://upload.wikimedia.org/wikipedia/en/thumb/7/78/Netherlands_national_football_team_logo.svg/150px-Netherlands_national_football_team_logo.svg.png",
-    "Qatar": "https://upload.wikimedia.org/wikipedia/en/thumb/3/3a/Qatar_Football_Association_logo.svg/151px-Qatar_Football_Association_logo.svg.png",
-    "Senegal": "https://upload.wikimedia.org/wikipedia/en/thumb/1/16/Senegalese_Football_Federation_logo.svg/190px-Senegalese_Football_Federation_logo.svg.png",
-    "England": "https://upload.wikimedia.org/wikipedia/en/thumb/1/1b/Semi-protection-shackle.svg/20px-Semi-protection-shackle.svg.png",
-    "Iran": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Iran_football_federation_emblem.png/155px-Iran_football_federation_emblem.png",
-    "United States ": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/United_States_Soccer_Federation_logo_2016.svg/150px-United_States_Soccer_Federation_logo_2016.svg.png",
-    "Wales": "https://upload.wikimedia.org/wikipedia/en/thumb/d/dc/Wales_national_football_team_logo.svg/175px-Wales_national_football_team_logo.svg.png",
-    "Argentina": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/Argentina_national_football_team_logo.svg/160px-Argentina_national_football_team_logo.svg.png",
-    "Mexico": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f3/Mexico_national_football_team_crest_%282022%29.png/150px-Mexico_national_football_team_crest_%282022%29.png",
-    "Poland": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Herb_Polski.svg/150px-Herb_Polski.svg.png",
-    "Saudi Arabia": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Flag_of_Saudi_Arabia.svg/200px-Flag_of_Saudi_Arabia.svg.png",
-    "Australia": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Australia_national_football_team_badge.svg/180px-Australia_national_football_team_badge.svg.png",
-    "Denmark": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Dansk_boldspil_union_logo.svg/180px-Dansk_boldspil_union_logo.svg.png",
-    "France": "https://upload.wikimedia.org/wikipedia/en/thumb/1/12/France_national_football_team_seal.svg/150px-France_national_football_team_seal.svg.png",
-    "Tunisia": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5d/Logo_federation_tunisienne_de_football-copy.svg/180px-Logo_federation_tunisienne_de_football-copy.svg.png",
-    "Costa Rica": "https://upload.wikimedia.org/wikipedia/en/thumb/8/8d/Costa_Rica_national_football_team_logo.svg/170px-Costa_Rica_national_football_team_logo.svg.png",
-    "Germany": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/DFBEagle.svg/200px-DFBEagle.svg.png",
-    "Japan": "https://upload.wikimedia.org/wikipedia/en/thumb/8/84/Japan_national_football_team_crest.svg/160px-Japan_national_football_team_crest.svg.png",
-    "Spain": "https://upload.wikimedia.org/wikipedia/en/thumb/3/31/Spain_National_Football_Team_badge.png/155px-Spain_National_Football_Team_badge.png",
-    "Belgium": "https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/Royal_Belgian_FA_logo_2019.svg/130px-Royal_Belgian_FA_logo_2019.svg.png",
-    "Canada": "https://upload.wikimedia.org/wikipedia/en/thumb/6/69/Canadian_Soccer_Association_logo.svg/175px-Canadian_Soccer_Association_logo.svg.png",
-    "Croatia": "https://upload.wikimedia.org/wikipedia/en/thumb/8/84/Croatian_Football_Federation_logo.svg/150px-Croatian_Football_Federation_logo.svg.png",
-    "Morocco": "https://upload.wikimedia.org/wikipedia/en/thumb/d/d9/Morocco_national_football_team_logo.png/165px-Morocco_national_football_team_logo.png",
-    "Brazil": "https://upload.wikimedia.org/wikipedia/en/thumb/9/99/Brazilian_Football_Confederation_logo.svg/170px-Brazilian_Football_Confederation_logo.svg.png",
-    "Cameroon": "https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/Cameroon_2010crest.png/170px-Cameroon_2010crest.png",
-    "Serbia": "https://upload.wikimedia.org/wikipedia/en/thumb/1/1e/Fudbalski_savez_Srbije.svg/140px-Fudbalski_savez_Srbije.svg.png",
-    "Switzerland": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Flag_of_Switzerland.svg/150px-Flag_of_Switzerland.svg.png",
-    "Ghana": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Flag_of_Ghana.svg/160px-Flag_of_Ghana.svg.png",
-    "Portugal": "https://upload.wikimedia.org/wikipedia/en/thumb/5/5f/Portuguese_Football_Federation.svg/150px-Portuguese_Football_Federation.svg.png",
-    "South Korea": "https://upload.wikimedia.org/wikipedia/en/thumb/0/06/Korea_Republic_National_Team_Logo.svg/145px-Korea_Republic_National_Team_Logo.svg.png",
-    "Uruguay": "https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Uruguay_national_football_team_seal.svg/140px-Uruguay_national_football_team_seal.svg.png"
-  }
-},{}],10:[function(require,module,exports){
-module.exports={
-        "aus":"Australia",
-        "eng":"England",
-        "ind":"India",
-        "nz":"New Zealand",
-        "pak":"Pakistan",
-        "sa":"South Africa",
-        "sl":"Sri Lanka",
-        "wi":"West Indies",
-        "ban":"Bangladesh",
-        "ire":"Ireland",
-        "zim":"Zimbabwe",
-        "afg":"Afghanistan",
-        "sco":"Scotland",
-        "ned":"Netherlands",
-
-        "arg":"Argentina",
-        "bra":"Brazil",
-        "por":"Portugal"
-}
-},{}],11:[function(require,module,exports){
-module.exports = require('./lib/axios');
-},{"./lib/axios":13}],12:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-var settle = require('./../core/settle');
-var cookies = require('./../helpers/cookies');
-var buildURL = require('./../helpers/buildURL');
-var buildFullPath = require('../core/buildFullPath');
-var parseHeaders = require('./../helpers/parseHeaders');
-var isURLSameOrigin = require('./../helpers/isURLSameOrigin');
-var transitionalDefaults = require('../defaults/transitional');
-var AxiosError = require('../core/AxiosError');
-var CanceledError = require('../cancel/CanceledError');
-var parseProtocol = require('../helpers/parseProtocol');
-
-module.exports = function xhrAdapter(config) {
-  return new Promise(function dispatchXhrRequest(resolve, reject) {
-    var requestData = config.data;
-    var requestHeaders = config.headers;
-    var responseType = config.responseType;
-    var onCanceled;
-    function done() {
-      if (config.cancelToken) {
-        config.cancelToken.unsubscribe(onCanceled);
-      }
-
-      if (config.signal) {
-        config.signal.removeEventListener('abort', onCanceled);
-      }
-    }
-
-    if (utils.isFormData(requestData) && utils.isStandardBrowserEnv()) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
-
-    var request = new XMLHttpRequest();
-
-    // HTTP basic authentication
-    if (config.auth) {
-      var username = config.auth.username || '';
-      var password = config.auth.password ? unescape(encodeURIComponent(config.auth.password)) : '';
-      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
-    }
-
-    var fullPath = buildFullPath(config.baseURL, config.url);
-
-    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
-    request.timeout = config.timeout;
-
-    function onloadend() {
-      if (!request) {
-        return;
-      }
-      // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !responseType || responseType === 'text' ||  responseType === 'json' ?
-        request.responseText : request.response;
-      var response = {
-        data: responseData,
-        status: request.status,
-        statusText: request.statusText,
-        headers: responseHeaders,
-        config: config,
-        request: request
-      };
-
-      settle(function _resolve(value) {
-        resolve(value);
-        done();
-      }, function _reject(err) {
-        reject(err);
-        done();
-      }, response);
-
-      // Clean up request
-      request = null;
-    }
-
-    if ('onloadend' in request) {
-      // Use onloadend if available
-      request.onloadend = onloadend;
-    } else {
-      // Listen for ready state to emulate onloadend
-      request.onreadystatechange = function handleLoad() {
-        if (!request || request.readyState !== 4) {
-          return;
-        }
-
-        // The request errored out and we didn't get a response, this will be
-        // handled by onerror instead
-        // With one exception: request that using file: protocol, most browsers
-        // will return status as 0 even though it's a successful request
-        if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-          return;
-        }
-        // readystate handler is calling before onerror or ontimeout handlers,
-        // so we should call onloadend on the next 'tick'
-        setTimeout(onloadend);
-      };
-    }
-
-    // Handle browser request cancellation (as opposed to a manual cancellation)
-    request.onabort = function handleAbort() {
-      if (!request) {
-        return;
-      }
-
-      reject(new AxiosError('Request aborted', AxiosError.ECONNABORTED, config, request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle low level network errors
-    request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
-      reject(new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request, request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle timeout
-    request.ontimeout = function handleTimeout() {
-      var timeoutErrorMessage = config.timeout ? 'timeout of ' + config.timeout + 'ms exceeded' : 'timeout exceeded';
-      var transitional = config.transitional || transitionalDefaults;
-      if (config.timeoutErrorMessage) {
-        timeoutErrorMessage = config.timeoutErrorMessage;
-      }
-      reject(new AxiosError(
-        timeoutErrorMessage,
-        transitional.clarifyTimeoutError ? AxiosError.ETIMEDOUT : AxiosError.ECONNABORTED,
-        config,
-        request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
-      // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
-        cookies.read(config.xsrfCookieName) :
-        undefined;
-
-      if (xsrfValue) {
-        requestHeaders[config.xsrfHeaderName] = xsrfValue;
-      }
-    }
-
-    // Add headers to the request
-    if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
-          delete requestHeaders[key];
-        } else {
-          // Otherwise add header to the request
-          request.setRequestHeader(key, val);
-        }
-      });
-    }
-
-    // Add withCredentials to request if needed
-    if (!utils.isUndefined(config.withCredentials)) {
-      request.withCredentials = !!config.withCredentials;
-    }
-
-    // Add responseType to request if needed
-    if (responseType && responseType !== 'json') {
-      request.responseType = config.responseType;
-    }
-
-    // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', config.onDownloadProgress);
-    }
-
-    // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', config.onUploadProgress);
-    }
-
-    if (config.cancelToken || config.signal) {
-      // Handle cancellation
-      // eslint-disable-next-line func-names
-      onCanceled = function(cancel) {
-        if (!request) {
-          return;
-        }
-        reject(!cancel || (cancel && cancel.type) ? new CanceledError() : cancel);
-        request.abort();
-        request = null;
-      };
-
-      config.cancelToken && config.cancelToken.subscribe(onCanceled);
-      if (config.signal) {
-        config.signal.aborted ? onCanceled() : config.signal.addEventListener('abort', onCanceled);
-      }
-    }
-
-    if (!requestData) {
-      requestData = null;
-    }
-
-    var protocol = parseProtocol(fullPath);
-
-    if (protocol && [ 'http', 'https', 'file' ].indexOf(protocol) === -1) {
-      reject(new AxiosError('Unsupported protocol ' + protocol + ':', AxiosError.ERR_BAD_REQUEST, config));
-      return;
-    }
-
-
-    // Send the request
-    request.send(requestData);
-  });
-};
-
-},{"../cancel/CanceledError":15,"../core/AxiosError":18,"../core/buildFullPath":20,"../defaults/transitional":26,"../helpers/parseProtocol":38,"./../core/settle":23,"./../helpers/buildURL":29,"./../helpers/cookies":31,"./../helpers/isURLSameOrigin":34,"./../helpers/parseHeaders":37,"./../utils":42}],13:[function(require,module,exports){
-'use strict';
-
-var utils = require('./utils');
-var bind = require('./helpers/bind');
-var Axios = require('./core/Axios');
-var mergeConfig = require('./core/mergeConfig');
-var defaults = require('./defaults');
-
-/**
- * Create an instance of Axios
- *
- * @param {Object} defaultConfig The default config for the instance
- * @return {Axios} A new instance of Axios
- */
-function createInstance(defaultConfig) {
-  var context = new Axios(defaultConfig);
-  var instance = bind(Axios.prototype.request, context);
-
-  // Copy axios.prototype to instance
-  utils.extend(instance, Axios.prototype, context);
-
-  // Copy context to instance
-  utils.extend(instance, context);
-
-  // Factory for creating new instances
-  instance.create = function create(instanceConfig) {
-    return createInstance(mergeConfig(defaultConfig, instanceConfig));
-  };
-
-  return instance;
-}
-
-// Create the default instance to be exported
-var axios = createInstance(defaults);
-
-// Expose Axios class to allow class inheritance
-axios.Axios = Axios;
-
-// Expose Cancel & CancelToken
-axios.CanceledError = require('./cancel/CanceledError');
-axios.CancelToken = require('./cancel/CancelToken');
-axios.isCancel = require('./cancel/isCancel');
-axios.VERSION = require('./env/data').version;
-axios.toFormData = require('./helpers/toFormData');
-
-// Expose AxiosError class
-axios.AxiosError = require('../lib/core/AxiosError');
-
-// alias for CanceledError for backward compatibility
-axios.Cancel = axios.CanceledError;
-
-// Expose all/spread
-axios.all = function all(promises) {
-  return Promise.all(promises);
-};
-axios.spread = require('./helpers/spread');
-
-// Expose isAxiosError
-axios.isAxiosError = require('./helpers/isAxiosError');
-
-module.exports = axios;
-
-// Allow use of default import syntax in TypeScript
-module.exports.default = axios;
-
-},{"../lib/core/AxiosError":18,"./cancel/CancelToken":14,"./cancel/CanceledError":15,"./cancel/isCancel":16,"./core/Axios":17,"./core/mergeConfig":22,"./defaults":25,"./env/data":27,"./helpers/bind":28,"./helpers/isAxiosError":33,"./helpers/spread":39,"./helpers/toFormData":40,"./utils":42}],14:[function(require,module,exports){
-'use strict';
-
-var CanceledError = require('./CanceledError');
-
-/**
- * A `CancelToken` is an object that can be used to request cancellation of an operation.
- *
- * @class
- * @param {Function} executor The executor function.
- */
-function CancelToken(executor) {
-  if (typeof executor !== 'function') {
-    throw new TypeError('executor must be a function.');
-  }
-
-  var resolvePromise;
-
-  this.promise = new Promise(function promiseExecutor(resolve) {
-    resolvePromise = resolve;
-  });
-
-  var token = this;
-
-  // eslint-disable-next-line func-names
-  this.promise.then(function(cancel) {
-    if (!token._listeners) return;
-
-    var i;
-    var l = token._listeners.length;
-
-    for (i = 0; i < l; i++) {
-      token._listeners[i](cancel);
-    }
-    token._listeners = null;
-  });
-
-  // eslint-disable-next-line func-names
-  this.promise.then = function(onfulfilled) {
-    var _resolve;
-    // eslint-disable-next-line func-names
-    var promise = new Promise(function(resolve) {
-      token.subscribe(resolve);
-      _resolve = resolve;
-    }).then(onfulfilled);
-
-    promise.cancel = function reject() {
-      token.unsubscribe(_resolve);
-    };
-
-    return promise;
-  };
-
-  executor(function cancel(message) {
-    if (token.reason) {
-      // Cancellation has already been requested
-      return;
-    }
-
-    token.reason = new CanceledError(message);
-    resolvePromise(token.reason);
-  });
-}
-
-/**
- * Throws a `CanceledError` if cancellation has been requested.
- */
-CancelToken.prototype.throwIfRequested = function throwIfRequested() {
-  if (this.reason) {
-    throw this.reason;
-  }
-};
-
-/**
- * Subscribe to the cancel signal
- */
-
-CancelToken.prototype.subscribe = function subscribe(listener) {
-  if (this.reason) {
-    listener(this.reason);
-    return;
-  }
-
-  if (this._listeners) {
-    this._listeners.push(listener);
-  } else {
-    this._listeners = [listener];
-  }
-};
-
-/**
- * Unsubscribe from the cancel signal
- */
-
-CancelToken.prototype.unsubscribe = function unsubscribe(listener) {
-  if (!this._listeners) {
-    return;
-  }
-  var index = this._listeners.indexOf(listener);
-  if (index !== -1) {
-    this._listeners.splice(index, 1);
-  }
-};
-
-/**
- * Returns an object that contains a new `CancelToken` and a function that, when called,
- * cancels the `CancelToken`.
- */
-CancelToken.source = function source() {
-  var cancel;
-  var token = new CancelToken(function executor(c) {
-    cancel = c;
-  });
-  return {
-    token: token,
-    cancel: cancel
-  };
-};
-
-module.exports = CancelToken;
-
-},{"./CanceledError":15}],15:[function(require,module,exports){
-'use strict';
-
-var AxiosError = require('../core/AxiosError');
-var utils = require('../utils');
-
-/**
- * A `CanceledError` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function CanceledError(message) {
-  // eslint-disable-next-line no-eq-null,eqeqeq
-  AxiosError.call(this, message == null ? 'canceled' : message, AxiosError.ERR_CANCELED);
-  this.name = 'CanceledError';
-}
-
-utils.inherits(CanceledError, AxiosError, {
-  __CANCEL__: true
-});
-
-module.exports = CanceledError;
-
-},{"../core/AxiosError":18,"../utils":42}],16:[function(require,module,exports){
-'use strict';
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-},{}],17:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-var buildURL = require('../helpers/buildURL');
-var InterceptorManager = require('./InterceptorManager');
-var dispatchRequest = require('./dispatchRequest');
-var mergeConfig = require('./mergeConfig');
-var buildFullPath = require('./buildFullPath');
-var validator = require('../helpers/validator');
-
-var validators = validator.validators;
-/**
- * Create a new instance of Axios
- *
- * @param {Object} instanceConfig The default config for the instance
- */
-function Axios(instanceConfig) {
-  this.defaults = instanceConfig;
-  this.interceptors = {
-    request: new InterceptorManager(),
-    response: new InterceptorManager()
-  };
-}
-
-/**
- * Dispatch a request
- *
- * @param {Object} config The config specific for this request (merged with this.defaults)
- */
-Axios.prototype.request = function request(configOrUrl, config) {
-  /*eslint no-param-reassign:0*/
-  // Allow for axios('example/url'[, config]) a la fetch API
-  if (typeof configOrUrl === 'string') {
-    config = config || {};
-    config.url = configOrUrl;
-  } else {
-    config = configOrUrl || {};
-  }
-
-  config = mergeConfig(this.defaults, config);
-
-  // Set config.method
-  if (config.method) {
-    config.method = config.method.toLowerCase();
-  } else if (this.defaults.method) {
-    config.method = this.defaults.method.toLowerCase();
-  } else {
-    config.method = 'get';
-  }
-
-  var transitional = config.transitional;
-
-  if (transitional !== undefined) {
-    validator.assertOptions(transitional, {
-      silentJSONParsing: validators.transitional(validators.boolean),
-      forcedJSONParsing: validators.transitional(validators.boolean),
-      clarifyTimeoutError: validators.transitional(validators.boolean)
-    }, false);
-  }
-
-  // filter out skipped interceptors
-  var requestInterceptorChain = [];
-  var synchronousRequestInterceptors = true;
-  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
-    if (typeof interceptor.runWhen === 'function' && interceptor.runWhen(config) === false) {
-      return;
-    }
-
-    synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
-
-    requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
-  });
-
-  var responseInterceptorChain = [];
-  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
-    responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
-  });
-
-  var promise;
-
-  if (!synchronousRequestInterceptors) {
-    var chain = [dispatchRequest, undefined];
-
-    Array.prototype.unshift.apply(chain, requestInterceptorChain);
-    chain = chain.concat(responseInterceptorChain);
-
-    promise = Promise.resolve(config);
-    while (chain.length) {
-      promise = promise.then(chain.shift(), chain.shift());
-    }
-
-    return promise;
-  }
-
-
-  var newConfig = config;
-  while (requestInterceptorChain.length) {
-    var onFulfilled = requestInterceptorChain.shift();
-    var onRejected = requestInterceptorChain.shift();
-    try {
-      newConfig = onFulfilled(newConfig);
-    } catch (error) {
-      onRejected(error);
-      break;
-    }
-  }
-
-  try {
-    promise = dispatchRequest(newConfig);
-  } catch (error) {
-    return Promise.reject(error);
-  }
-
-  while (responseInterceptorChain.length) {
-    promise = promise.then(responseInterceptorChain.shift(), responseInterceptorChain.shift());
-  }
-
-  return promise;
-};
-
-Axios.prototype.getUri = function getUri(config) {
-  config = mergeConfig(this.defaults, config);
-  var fullPath = buildFullPath(config.baseURL, config.url);
-  return buildURL(fullPath, config.params, config.paramsSerializer);
-};
-
-// Provide aliases for supported request methods
-utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
-  /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, config) {
-    return this.request(mergeConfig(config || {}, {
-      method: method,
-      url: url,
-      data: (config || {}).data
-    }));
-  };
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  /*eslint func-names:0*/
-
-  function generateHTTPMethod(isForm) {
-    return function httpMethod(url, data, config) {
-      return this.request(mergeConfig(config || {}, {
-        method: method,
-        headers: isForm ? {
-          'Content-Type': 'multipart/form-data'
-        } : {},
-        url: url,
-        data: data
-      }));
-    };
-  }
-
-  Axios.prototype[method] = generateHTTPMethod();
-
-  Axios.prototype[method + 'Form'] = generateHTTPMethod(true);
-});
-
-module.exports = Axios;
-
-},{"../helpers/buildURL":29,"../helpers/validator":41,"./../utils":42,"./InterceptorManager":19,"./buildFullPath":20,"./dispatchRequest":21,"./mergeConfig":22}],18:[function(require,module,exports){
-'use strict';
-
-var utils = require('../utils');
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [config] The config.
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-function AxiosError(message, code, config, request, response) {
-  Error.call(this);
-  this.message = message;
-  this.name = 'AxiosError';
-  code && (this.code = code);
-  config && (this.config = config);
-  request && (this.request = request);
-  response && (this.response = response);
-}
-
-utils.inherits(AxiosError, Error, {
-  toJSON: function toJSON() {
-    return {
-      // Standard
-      message: this.message,
-      name: this.name,
-      // Microsoft
-      description: this.description,
-      number: this.number,
-      // Mozilla
-      fileName: this.fileName,
-      lineNumber: this.lineNumber,
-      columnNumber: this.columnNumber,
-      stack: this.stack,
-      // Axios
-      config: this.config,
-      code: this.code,
-      status: this.response && this.response.status ? this.response.status : null
-    };
-  }
-});
-
-var prototype = AxiosError.prototype;
-var descriptors = {};
-
-[
-  'ERR_BAD_OPTION_VALUE',
-  'ERR_BAD_OPTION',
-  'ECONNABORTED',
-  'ETIMEDOUT',
-  'ERR_NETWORK',
-  'ERR_FR_TOO_MANY_REDIRECTS',
-  'ERR_DEPRECATED',
-  'ERR_BAD_RESPONSE',
-  'ERR_BAD_REQUEST',
-  'ERR_CANCELED'
-// eslint-disable-next-line func-names
-].forEach(function(code) {
-  descriptors[code] = {value: code};
-});
-
-Object.defineProperties(AxiosError, descriptors);
-Object.defineProperty(prototype, 'isAxiosError', {value: true});
-
-// eslint-disable-next-line func-names
-AxiosError.from = function(error, code, config, request, response, customProps) {
-  var axiosError = Object.create(prototype);
-
-  utils.toFlatObject(error, axiosError, function filter(obj) {
-    return obj !== Error.prototype;
-  });
-
-  AxiosError.call(axiosError, error.message, code, config, request, response);
-
-  axiosError.name = error.name;
-
-  customProps && Object.assign(axiosError, customProps);
-
-  return axiosError;
-};
-
-module.exports = AxiosError;
-
-},{"../utils":42}],19:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-function InterceptorManager() {
-  this.handlers = [];
-}
-
-/**
- * Add a new interceptor to the stack
- *
- * @param {Function} fulfilled The function to handle `then` for a `Promise`
- * @param {Function} rejected The function to handle `reject` for a `Promise`
- *
- * @return {Number} An ID used to remove interceptor later
- */
-InterceptorManager.prototype.use = function use(fulfilled, rejected, options) {
-  this.handlers.push({
-    fulfilled: fulfilled,
-    rejected: rejected,
-    synchronous: options ? options.synchronous : false,
-    runWhen: options ? options.runWhen : null
-  });
-  return this.handlers.length - 1;
-};
-
-/**
- * Remove an interceptor from the stack
- *
- * @param {Number} id The ID that was returned by `use`
- */
-InterceptorManager.prototype.eject = function eject(id) {
-  if (this.handlers[id]) {
-    this.handlers[id] = null;
-  }
-};
-
-/**
- * Iterate over all the registered interceptors
- *
- * This method is particularly useful for skipping over any
- * interceptors that may have become `null` calling `eject`.
- *
- * @param {Function} fn The function to call for each interceptor
- */
-InterceptorManager.prototype.forEach = function forEach(fn) {
-  utils.forEach(this.handlers, function forEachHandler(h) {
-    if (h !== null) {
-      fn(h);
-    }
-  });
-};
-
-module.exports = InterceptorManager;
-
-},{"./../utils":42}],20:[function(require,module,exports){
-'use strict';
-
-var isAbsoluteURL = require('../helpers/isAbsoluteURL');
-var combineURLs = require('../helpers/combineURLs');
-
-/**
- * Creates a new URL by combining the baseURL with the requestedURL,
- * only when the requestedURL is not already an absolute URL.
- * If the requestURL is absolute, this function returns the requestedURL untouched.
- *
- * @param {string} baseURL The base URL
- * @param {string} requestedURL Absolute or relative URL to combine
- * @returns {string} The combined full path
- */
-module.exports = function buildFullPath(baseURL, requestedURL) {
-  if (baseURL && !isAbsoluteURL(requestedURL)) {
-    return combineURLs(baseURL, requestedURL);
-  }
-  return requestedURL;
-};
-
-},{"../helpers/combineURLs":30,"../helpers/isAbsoluteURL":32}],21:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-var transformData = require('./transformData');
-var isCancel = require('../cancel/isCancel');
-var defaults = require('../defaults');
-var CanceledError = require('../cancel/CanceledError');
-
-/**
- * Throws a `CanceledError` if cancellation has been requested.
- */
-function throwIfCancellationRequested(config) {
-  if (config.cancelToken) {
-    config.cancelToken.throwIfRequested();
-  }
-
-  if (config.signal && config.signal.aborted) {
-    throw new CanceledError();
-  }
-}
-
-/**
- * Dispatch a request to the server using the configured adapter.
- *
- * @param {object} config The config that is to be used for the request
- * @returns {Promise} The Promise to be fulfilled
- */
-module.exports = function dispatchRequest(config) {
-  throwIfCancellationRequested(config);
-
-  // Ensure headers exist
-  config.headers = config.headers || {};
-
-  // Transform request data
-  config.data = transformData.call(
-    config,
-    config.data,
-    config.headers,
-    config.transformRequest
-  );
-
-  // Flatten headers
-  config.headers = utils.merge(
-    config.headers.common || {},
-    config.headers[config.method] || {},
-    config.headers
-  );
-
-  utils.forEach(
-    ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
-    function cleanHeaderConfig(method) {
-      delete config.headers[method];
-    }
-  );
-
-  var adapter = config.adapter || defaults.adapter;
-
-  return adapter(config).then(function onAdapterResolution(response) {
-    throwIfCancellationRequested(config);
-
-    // Transform response data
-    response.data = transformData.call(
-      config,
-      response.data,
-      response.headers,
-      config.transformResponse
-    );
-
-    return response;
-  }, function onAdapterRejection(reason) {
-    if (!isCancel(reason)) {
-      throwIfCancellationRequested(config);
-
-      // Transform response data
-      if (reason && reason.response) {
-        reason.response.data = transformData.call(
-          config,
-          reason.response.data,
-          reason.response.headers,
-          config.transformResponse
-        );
-      }
-    }
-
-    return Promise.reject(reason);
-  });
-};
-
-},{"../cancel/CanceledError":15,"../cancel/isCancel":16,"../defaults":25,"./../utils":42,"./transformData":24}],22:[function(require,module,exports){
-'use strict';
-
-var utils = require('../utils');
-
-/**
- * Config-specific merge-function which creates a new config-object
- * by merging two configuration objects together.
- *
- * @param {Object} config1
- * @param {Object} config2
- * @returns {Object} New object resulting from merging config2 to config1
- */
-module.exports = function mergeConfig(config1, config2) {
-  // eslint-disable-next-line no-param-reassign
-  config2 = config2 || {};
-  var config = {};
-
-  function getMergedValue(target, source) {
-    if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
-      return utils.merge(target, source);
-    } else if (utils.isPlainObject(source)) {
-      return utils.merge({}, source);
-    } else if (utils.isArray(source)) {
-      return source.slice();
-    }
-    return source;
-  }
-
-  // eslint-disable-next-line consistent-return
-  function mergeDeepProperties(prop) {
-    if (!utils.isUndefined(config2[prop])) {
-      return getMergedValue(config1[prop], config2[prop]);
-    } else if (!utils.isUndefined(config1[prop])) {
-      return getMergedValue(undefined, config1[prop]);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function valueFromConfig2(prop) {
-    if (!utils.isUndefined(config2[prop])) {
-      return getMergedValue(undefined, config2[prop]);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function defaultToConfig2(prop) {
-    if (!utils.isUndefined(config2[prop])) {
-      return getMergedValue(undefined, config2[prop]);
-    } else if (!utils.isUndefined(config1[prop])) {
-      return getMergedValue(undefined, config1[prop]);
-    }
-  }
-
-  // eslint-disable-next-line consistent-return
-  function mergeDirectKeys(prop) {
-    if (prop in config2) {
-      return getMergedValue(config1[prop], config2[prop]);
-    } else if (prop in config1) {
-      return getMergedValue(undefined, config1[prop]);
-    }
-  }
-
-  var mergeMap = {
-    'url': valueFromConfig2,
-    'method': valueFromConfig2,
-    'data': valueFromConfig2,
-    'baseURL': defaultToConfig2,
-    'transformRequest': defaultToConfig2,
-    'transformResponse': defaultToConfig2,
-    'paramsSerializer': defaultToConfig2,
-    'timeout': defaultToConfig2,
-    'timeoutMessage': defaultToConfig2,
-    'withCredentials': defaultToConfig2,
-    'adapter': defaultToConfig2,
-    'responseType': defaultToConfig2,
-    'xsrfCookieName': defaultToConfig2,
-    'xsrfHeaderName': defaultToConfig2,
-    'onUploadProgress': defaultToConfig2,
-    'onDownloadProgress': defaultToConfig2,
-    'decompress': defaultToConfig2,
-    'maxContentLength': defaultToConfig2,
-    'maxBodyLength': defaultToConfig2,
-    'beforeRedirect': defaultToConfig2,
-    'transport': defaultToConfig2,
-    'httpAgent': defaultToConfig2,
-    'httpsAgent': defaultToConfig2,
-    'cancelToken': defaultToConfig2,
-    'socketPath': defaultToConfig2,
-    'responseEncoding': defaultToConfig2,
-    'validateStatus': mergeDirectKeys
-  };
-
-  utils.forEach(Object.keys(config1).concat(Object.keys(config2)), function computeConfigValue(prop) {
-    var merge = mergeMap[prop] || mergeDeepProperties;
-    var configValue = merge(prop);
-    (utils.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
-  });
-
-  return config;
-};
-
-},{"../utils":42}],23:[function(require,module,exports){
-'use strict';
-
-var AxiosError = require('./AxiosError');
-
-/**
- * Resolve or reject a Promise based on response status.
- *
- * @param {Function} resolve A function that resolves the promise.
- * @param {Function} reject A function that rejects the promise.
- * @param {object} response The response.
- */
-module.exports = function settle(resolve, reject, response) {
-  var validateStatus = response.config.validateStatus;
-  if (!response.status || !validateStatus || validateStatus(response.status)) {
-    resolve(response);
-  } else {
-    reject(new AxiosError(
-      'Request failed with status code ' + response.status,
-      [AxiosError.ERR_BAD_REQUEST, AxiosError.ERR_BAD_RESPONSE][Math.floor(response.status / 100) - 4],
-      response.config,
-      response.request,
-      response
-    ));
-  }
-};
-
-},{"./AxiosError":18}],24:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-var defaults = require('../defaults');
-
-/**
- * Transform the data for a request or a response
- *
- * @param {Object|String} data The data to be transformed
- * @param {Array} headers The headers for the request or response
- * @param {Array|Function} fns A single function or Array of functions
- * @returns {*} The resulting transformed data
- */
-module.exports = function transformData(data, headers, fns) {
-  var context = this || defaults;
-  /*eslint no-param-reassign:0*/
-  utils.forEach(fns, function transform(fn) {
-    data = fn.call(context, data, headers);
-  });
-
-  return data;
-};
-
-},{"../defaults":25,"./../utils":42}],25:[function(require,module,exports){
-(function (process){(function (){
-'use strict';
-
-var utils = require('../utils');
-var normalizeHeaderName = require('../helpers/normalizeHeaderName');
-var AxiosError = require('../core/AxiosError');
-var transitionalDefaults = require('./transitional');
-var toFormData = require('../helpers/toFormData');
-
-var DEFAULT_CONTENT_TYPE = {
-  'Content-Type': 'application/x-www-form-urlencoded'
-};
-
-function setContentTypeIfUnset(headers, value) {
-  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
-    headers['Content-Type'] = value;
-  }
-}
-
-function getDefaultAdapter() {
-  var adapter;
-  if (typeof XMLHttpRequest !== 'undefined') {
-    // For browsers use XHR adapter
-    adapter = require('../adapters/xhr');
-  } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
-    // For node use HTTP adapter
-    adapter = require('../adapters/http');
-  }
-  return adapter;
-}
-
-function stringifySafely(rawValue, parser, encoder) {
-  if (utils.isString(rawValue)) {
-    try {
-      (parser || JSON.parse)(rawValue);
-      return utils.trim(rawValue);
-    } catch (e) {
-      if (e.name !== 'SyntaxError') {
-        throw e;
-      }
-    }
-  }
-
-  return (encoder || JSON.stringify)(rawValue);
-}
-
-var defaults = {
-
-  transitional: transitionalDefaults,
-
-  adapter: getDefaultAdapter(),
-
-  transformRequest: [function transformRequest(data, headers) {
-    normalizeHeaderName(headers, 'Accept');
-    normalizeHeaderName(headers, 'Content-Type');
-
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
-    ) {
-      return data;
-    }
-    if (utils.isArrayBufferView(data)) {
-      return data.buffer;
-    }
-    if (utils.isURLSearchParams(data)) {
-      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
-      return data.toString();
-    }
-
-    var isObjectPayload = utils.isObject(data);
-    var contentType = headers && headers['Content-Type'];
-
-    var isFileList;
-
-    if ((isFileList = utils.isFileList(data)) || (isObjectPayload && contentType === 'multipart/form-data')) {
-      var _FormData = this.env && this.env.FormData;
-      return toFormData(isFileList ? {'files[]': data} : data, _FormData && new _FormData());
-    } else if (isObjectPayload || contentType === 'application/json') {
-      setContentTypeIfUnset(headers, 'application/json');
-      return stringifySafely(data);
-    }
-
-    return data;
-  }],
-
-  transformResponse: [function transformResponse(data) {
-    var transitional = this.transitional || defaults.transitional;
-    var silentJSONParsing = transitional && transitional.silentJSONParsing;
-    var forcedJSONParsing = transitional && transitional.forcedJSONParsing;
-    var strictJSONParsing = !silentJSONParsing && this.responseType === 'json';
-
-    if (strictJSONParsing || (forcedJSONParsing && utils.isString(data) && data.length)) {
-      try {
-        return JSON.parse(data);
-      } catch (e) {
-        if (strictJSONParsing) {
-          if (e.name === 'SyntaxError') {
-            throw AxiosError.from(e, AxiosError.ERR_BAD_RESPONSE, this, null, this.response);
-          }
-          throw e;
-        }
-      }
-    }
-
-    return data;
-  }],
-
-  /**
-   * A timeout in milliseconds to abort a request. If set to 0 (default) a
-   * timeout is not created.
-   */
-  timeout: 0,
-
-  xsrfCookieName: 'XSRF-TOKEN',
-  xsrfHeaderName: 'X-XSRF-TOKEN',
-
-  maxContentLength: -1,
-  maxBodyLength: -1,
-
-  env: {
-    FormData: require('./env/FormData')
-  },
-
-  validateStatus: function validateStatus(status) {
-    return status >= 200 && status < 300;
-  },
-
-  headers: {
-    common: {
-      'Accept': 'application/json, text/plain, */*'
-    }
-  }
-};
-
-utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-  defaults.headers[method] = {};
-});
-
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
-});
-
-module.exports = defaults;
-
-}).call(this)}).call(this,require('_process'))
-},{"../adapters/http":12,"../adapters/xhr":12,"../core/AxiosError":18,"../helpers/normalizeHeaderName":35,"../helpers/toFormData":40,"../utils":42,"./env/FormData":36,"./transitional":26,"_process":4}],26:[function(require,module,exports){
-'use strict';
-
-module.exports = {
-  silentJSONParsing: true,
-  forcedJSONParsing: true,
-  clarifyTimeoutError: false
-};
-
-},{}],27:[function(require,module,exports){
-module.exports = {
-  "version": "0.27.2"
-};
-},{}],28:[function(require,module,exports){
-'use strict';
-
-module.exports = function bind(fn, thisArg) {
-  return function wrap() {
-    var args = new Array(arguments.length);
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i];
-    }
-    return fn.apply(thisArg, args);
-  };
-};
-
-},{}],29:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-function encode(val) {
-  return encodeURIComponent(val).
-    replace(/%3A/gi, ':').
-    replace(/%24/g, '$').
-    replace(/%2C/gi, ',').
-    replace(/%20/g, '+').
-    replace(/%5B/gi, '[').
-    replace(/%5D/gi, ']');
-}
-
-/**
- * Build a URL by appending params to the end
- *
- * @param {string} url The base of the url (e.g., http://www.google.com)
- * @param {object} [params] The params to be appended
- * @returns {string} The formatted url
- */
-module.exports = function buildURL(url, params, paramsSerializer) {
-  /*eslint no-param-reassign:0*/
-  if (!params) {
-    return url;
-  }
-
-  var serializedParams;
-  if (paramsSerializer) {
-    serializedParams = paramsSerializer(params);
-  } else if (utils.isURLSearchParams(params)) {
-    serializedParams = params.toString();
-  } else {
-    var parts = [];
-
-    utils.forEach(params, function serialize(val, key) {
-      if (val === null || typeof val === 'undefined') {
-        return;
-      }
-
-      if (utils.isArray(val)) {
-        key = key + '[]';
-      } else {
-        val = [val];
-      }
-
-      utils.forEach(val, function parseValue(v) {
-        if (utils.isDate(v)) {
-          v = v.toISOString();
-        } else if (utils.isObject(v)) {
-          v = JSON.stringify(v);
-        }
-        parts.push(encode(key) + '=' + encode(v));
-      });
-    });
-
-    serializedParams = parts.join('&');
-  }
-
-  if (serializedParams) {
-    var hashmarkIndex = url.indexOf('#');
-    if (hashmarkIndex !== -1) {
-      url = url.slice(0, hashmarkIndex);
-    }
-
-    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
-  }
-
-  return url;
-};
-
-},{"./../utils":42}],30:[function(require,module,exports){
-'use strict';
-
-/**
- * Creates a new URL by combining the specified URLs
- *
- * @param {string} baseURL The base URL
- * @param {string} relativeURL The relative URL
- * @returns {string} The combined URL
- */
-module.exports = function combineURLs(baseURL, relativeURL) {
-  return relativeURL
-    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
-    : baseURL;
-};
-
-},{}],31:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-module.exports = (
-  utils.isStandardBrowserEnv() ?
-
-  // Standard browser envs support document.cookie
-    (function standardBrowserEnv() {
-      return {
-        write: function write(name, value, expires, path, domain, secure) {
-          var cookie = [];
-          cookie.push(name + '=' + encodeURIComponent(value));
-
-          if (utils.isNumber(expires)) {
-            cookie.push('expires=' + new Date(expires).toGMTString());
-          }
-
-          if (utils.isString(path)) {
-            cookie.push('path=' + path);
-          }
-
-          if (utils.isString(domain)) {
-            cookie.push('domain=' + domain);
-          }
-
-          if (secure === true) {
-            cookie.push('secure');
-          }
-
-          document.cookie = cookie.join('; ');
-        },
-
-        read: function read(name) {
-          var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
-          return (match ? decodeURIComponent(match[3]) : null);
-        },
-
-        remove: function remove(name) {
-          this.write(name, '', Date.now() - 86400000);
-        }
-      };
-    })() :
-
-  // Non standard browser env (web workers, react-native) lack needed support.
-    (function nonStandardBrowserEnv() {
-      return {
-        write: function write() {},
-        read: function read() { return null; },
-        remove: function remove() {}
-      };
-    })()
-);
-
-},{"./../utils":42}],32:[function(require,module,exports){
-'use strict';
-
-/**
- * Determines whether the specified URL is absolute
- *
- * @param {string} url The URL to test
- * @returns {boolean} True if the specified URL is absolute, otherwise false
- */
-module.exports = function isAbsoluteURL(url) {
-  // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
-  // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
-  // by any combination of letters, digits, plus, period, or hyphen.
-  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
-};
-
-},{}],33:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-/**
- * Determines whether the payload is an error thrown by Axios
- *
- * @param {*} payload The value to test
- * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
- */
-module.exports = function isAxiosError(payload) {
-  return utils.isObject(payload) && (payload.isAxiosError === true);
-};
-
-},{"./../utils":42}],34:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-module.exports = (
-  utils.isStandardBrowserEnv() ?
-
-  // Standard browser envs have full support of the APIs needed to test
-  // whether the request URL is of the same origin as current location.
-    (function standardBrowserEnv() {
-      var msie = /(msie|trident)/i.test(navigator.userAgent);
-      var urlParsingNode = document.createElement('a');
-      var originURL;
-
-      /**
-    * Parse a URL to discover it's components
-    *
-    * @param {String} url The URL to be parsed
-    * @returns {Object}
-    */
-      function resolveURL(url) {
-        var href = url;
-
-        if (msie) {
-        // IE needs attribute set twice to normalize properties
-          urlParsingNode.setAttribute('href', href);
-          href = urlParsingNode.href;
-        }
-
-        urlParsingNode.setAttribute('href', href);
-
-        // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-        return {
-          href: urlParsingNode.href,
-          protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-          host: urlParsingNode.host,
-          search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-          hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-          hostname: urlParsingNode.hostname,
-          port: urlParsingNode.port,
-          pathname: (urlParsingNode.pathname.charAt(0) === '/') ?
-            urlParsingNode.pathname :
-            '/' + urlParsingNode.pathname
-        };
-      }
-
-      originURL = resolveURL(window.location.href);
-
-      /**
-    * Determine if a URL shares the same origin as the current location
-    *
-    * @param {String} requestURL The URL to test
-    * @returns {boolean} True if URL shares the same origin, otherwise false
-    */
-      return function isURLSameOrigin(requestURL) {
-        var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
-        return (parsed.protocol === originURL.protocol &&
-            parsed.host === originURL.host);
-      };
-    })() :
-
-  // Non standard browser envs (web workers, react-native) lack needed support.
-    (function nonStandardBrowserEnv() {
-      return function isURLSameOrigin() {
-        return true;
-      };
-    })()
-);
-
-},{"./../utils":42}],35:[function(require,module,exports){
-'use strict';
-
-var utils = require('../utils');
-
-module.exports = function normalizeHeaderName(headers, normalizedName) {
-  utils.forEach(headers, function processHeader(value, name) {
-    if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
-      headers[normalizedName] = value;
-      delete headers[name];
-    }
-  });
-};
-
-},{"../utils":42}],36:[function(require,module,exports){
-// eslint-disable-next-line strict
-module.exports = null;
-
-},{}],37:[function(require,module,exports){
-'use strict';
-
-var utils = require('./../utils');
-
-// Headers whose duplicates are ignored by node
-// c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
-  'age', 'authorization', 'content-length', 'content-type', 'etag',
-  'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
-  'last-modified', 'location', 'max-forwards', 'proxy-authorization',
-  'referer', 'retry-after', 'user-agent'
-];
-
-/**
- * Parse headers into an object
- *
- * ```
- * Date: Wed, 27 Aug 2014 08:58:49 GMT
- * Content-Type: application/json
- * Connection: keep-alive
- * Transfer-Encoding: chunked
- * ```
- *
- * @param {String} headers Headers needing to be parsed
- * @returns {Object} Headers parsed into an object
- */
-module.exports = function parseHeaders(headers) {
-  var parsed = {};
-  var key;
-  var val;
-  var i;
-
-  if (!headers) { return parsed; }
-
-  utils.forEach(headers.split('\n'), function parser(line) {
-    i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
-
-    if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
-        return;
-      }
-      if (key === 'set-cookie') {
-        parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
-      } else {
-        parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
-      }
-    }
-  });
-
-  return parsed;
-};
-
-},{"./../utils":42}],38:[function(require,module,exports){
-'use strict';
-
-module.exports = function parseProtocol(url) {
-  var match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
-  return match && match[1] || '';
-};
-
-},{}],39:[function(require,module,exports){
-'use strict';
-
-/**
- * Syntactic sugar for invoking a function and expanding an array for arguments.
- *
- * Common use case would be to use `Function.prototype.apply`.
- *
- *  ```js
- *  function f(x, y, z) {}
- *  var args = [1, 2, 3];
- *  f.apply(null, args);
- *  ```
- *
- * With `spread` this example can be re-written.
- *
- *  ```js
- *  spread(function(x, y, z) {})([1, 2, 3]);
- *  ```
- *
- * @param {Function} callback
- * @returns {Function}
- */
-module.exports = function spread(callback) {
-  return function wrap(arr) {
-    return callback.apply(null, arr);
-  };
-};
-
-},{}],40:[function(require,module,exports){
-(function (Buffer){(function (){
-'use strict';
-
-var utils = require('../utils');
-
-/**
- * Convert a data object to FormData
- * @param {Object} obj
- * @param {?Object} [formData]
- * @returns {Object}
- **/
-
-function toFormData(obj, formData) {
-  // eslint-disable-next-line no-param-reassign
-  formData = formData || new FormData();
-
-  var stack = [];
-
-  function convertValue(value) {
-    if (value === null) return '';
-
-    if (utils.isDate(value)) {
-      return value.toISOString();
-    }
-
-    if (utils.isArrayBuffer(value) || utils.isTypedArray(value)) {
-      return typeof Blob === 'function' ? new Blob([value]) : Buffer.from(value);
-    }
-
-    return value;
-  }
-
-  function build(data, parentKey) {
-    if (utils.isPlainObject(data) || utils.isArray(data)) {
-      if (stack.indexOf(data) !== -1) {
-        throw Error('Circular reference detected in ' + parentKey);
-      }
-
-      stack.push(data);
-
-      utils.forEach(data, function each(value, key) {
-        if (utils.isUndefined(value)) return;
-        var fullKey = parentKey ? parentKey + '.' + key : key;
-        var arr;
-
-        if (value && !parentKey && typeof value === 'object') {
-          if (utils.endsWith(key, '{}')) {
-            // eslint-disable-next-line no-param-reassign
-            value = JSON.stringify(value);
-          } else if (utils.endsWith(key, '[]') && (arr = utils.toArray(value))) {
-            // eslint-disable-next-line func-names
-            arr.forEach(function(el) {
-              !utils.isUndefined(el) && formData.append(fullKey, convertValue(el));
-            });
-            return;
-          }
-        }
-
-        build(value, fullKey);
-      });
-
-      stack.pop();
-    } else {
-      formData.append(parentKey, convertValue(data));
-    }
-  }
-
-  build(obj);
-
-  return formData;
-}
-
-module.exports = toFormData;
-
-}).call(this)}).call(this,require("buffer").Buffer)
-},{"../utils":42,"buffer":2}],41:[function(require,module,exports){
-'use strict';
-
-var VERSION = require('../env/data').version;
-var AxiosError = require('../core/AxiosError');
-
-var validators = {};
-
-// eslint-disable-next-line func-names
-['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach(function(type, i) {
-  validators[type] = function validator(thing) {
-    return typeof thing === type || 'a' + (i < 1 ? 'n ' : ' ') + type;
-  };
-});
-
-var deprecatedWarnings = {};
-
-/**
- * Transitional option validator
- * @param {function|boolean?} validator - set to false if the transitional option has been removed
- * @param {string?} version - deprecated version / removed since version
- * @param {string?} message - some message with additional info
- * @returns {function}
- */
-validators.transitional = function transitional(validator, version, message) {
-  function formatMessage(opt, desc) {
-    return '[Axios v' + VERSION + '] Transitional option \'' + opt + '\'' + desc + (message ? '. ' + message : '');
-  }
-
-  // eslint-disable-next-line func-names
-  return function(value, opt, opts) {
-    if (validator === false) {
-      throw new AxiosError(
-        formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')),
-        AxiosError.ERR_DEPRECATED
-      );
-    }
-
-    if (version && !deprecatedWarnings[opt]) {
-      deprecatedWarnings[opt] = true;
-      // eslint-disable-next-line no-console
-      console.warn(
-        formatMessage(
-          opt,
-          ' has been deprecated since v' + version + ' and will be removed in the near future'
-        )
-      );
-    }
-
-    return validator ? validator(value, opt, opts) : true;
-  };
-};
-
-/**
- * Assert object's properties type
- * @param {object} options
- * @param {object} schema
- * @param {boolean?} allowUnknown
- */
-
-function assertOptions(options, schema, allowUnknown) {
-  if (typeof options !== 'object') {
-    throw new AxiosError('options must be an object', AxiosError.ERR_BAD_OPTION_VALUE);
-  }
-  var keys = Object.keys(options);
-  var i = keys.length;
-  while (i-- > 0) {
-    var opt = keys[i];
-    var validator = schema[opt];
-    if (validator) {
-      var value = options[opt];
-      var result = value === undefined || validator(value, opt, options);
-      if (result !== true) {
-        throw new AxiosError('option ' + opt + ' must be ' + result, AxiosError.ERR_BAD_OPTION_VALUE);
-      }
-      continue;
-    }
-    if (allowUnknown !== true) {
-      throw new AxiosError('Unknown option ' + opt, AxiosError.ERR_BAD_OPTION);
-    }
-  }
-}
-
-module.exports = {
-  assertOptions: assertOptions,
-  validators: validators
-};
-
-},{"../core/AxiosError":18,"../env/data":27}],42:[function(require,module,exports){
-'use strict';
-
-var bind = require('./helpers/bind');
-
-// utils is a library of generic helper functions non-specific to axios
-
-var toString = Object.prototype.toString;
-
-// eslint-disable-next-line func-names
-var kindOf = (function(cache) {
-  // eslint-disable-next-line func-names
-  return function(thing) {
-    var str = toString.call(thing);
-    return cache[str] || (cache[str] = str.slice(8, -1).toLowerCase());
-  };
-})(Object.create(null));
-
-function kindOfTest(type) {
-  type = type.toLowerCase();
-  return function isKindOf(thing) {
-    return kindOf(thing) === type;
-  };
-}
-
-/**
- * Determine if a value is an Array
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an Array, otherwise false
- */
-function isArray(val) {
-  return Array.isArray(val);
-}
-
-/**
- * Determine if a value is undefined
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if the value is undefined, otherwise false
- */
-function isUndefined(val) {
-  return typeof val === 'undefined';
-}
-
-/**
- * Determine if a value is a Buffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Buffer, otherwise false
- */
-function isBuffer(val) {
-  return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
-    && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
-}
-
-/**
- * Determine if a value is an ArrayBuffer
- *
- * @function
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an ArrayBuffer, otherwise false
- */
-var isArrayBuffer = kindOfTest('ArrayBuffer');
-
-
-/**
- * Determine if a value is a view on an ArrayBuffer
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
- */
-function isArrayBufferView(val) {
-  var result;
-  if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
-    result = ArrayBuffer.isView(val);
-  } else {
-    result = (val) && (val.buffer) && (isArrayBuffer(val.buffer));
-  }
-  return result;
-}
-
-/**
- * Determine if a value is a String
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a String, otherwise false
- */
-function isString(val) {
-  return typeof val === 'string';
-}
-
-/**
- * Determine if a value is a Number
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Number, otherwise false
- */
-function isNumber(val) {
-  return typeof val === 'number';
-}
-
-/**
- * Determine if a value is an Object
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is an Object, otherwise false
- */
-function isObject(val) {
-  return val !== null && typeof val === 'object';
-}
-
-/**
- * Determine if a value is a plain Object
- *
- * @param {Object} val The value to test
- * @return {boolean} True if value is a plain Object, otherwise false
- */
-function isPlainObject(val) {
-  if (kindOf(val) !== 'object') {
-    return false;
-  }
-
-  var prototype = Object.getPrototypeOf(val);
-  return prototype === null || prototype === Object.prototype;
-}
-
-/**
- * Determine if a value is a Date
- *
- * @function
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Date, otherwise false
- */
-var isDate = kindOfTest('Date');
-
-/**
- * Determine if a value is a File
- *
- * @function
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a File, otherwise false
- */
-var isFile = kindOfTest('File');
-
-/**
- * Determine if a value is a Blob
- *
- * @function
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Blob, otherwise false
- */
-var isBlob = kindOfTest('Blob');
-
-/**
- * Determine if a value is a FileList
- *
- * @function
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a File, otherwise false
- */
-var isFileList = kindOfTest('FileList');
-
-/**
- * Determine if a value is a Function
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Function, otherwise false
- */
-function isFunction(val) {
-  return toString.call(val) === '[object Function]';
-}
-
-/**
- * Determine if a value is a Stream
- *
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a Stream, otherwise false
- */
-function isStream(val) {
-  return isObject(val) && isFunction(val.pipe);
-}
-
-/**
- * Determine if a value is a FormData
- *
- * @param {Object} thing The value to test
- * @returns {boolean} True if value is an FormData, otherwise false
- */
-function isFormData(thing) {
-  var pattern = '[object FormData]';
-  return thing && (
-    (typeof FormData === 'function' && thing instanceof FormData) ||
-    toString.call(thing) === pattern ||
-    (isFunction(thing.toString) && thing.toString() === pattern)
-  );
-}
-
-/**
- * Determine if a value is a URLSearchParams object
- * @function
- * @param {Object} val The value to test
- * @returns {boolean} True if value is a URLSearchParams object, otherwise false
- */
-var isURLSearchParams = kindOfTest('URLSearchParams');
-
-/**
- * Trim excess whitespace off the beginning and end of a string
- *
- * @param {String} str The String to trim
- * @returns {String} The String freed of excess whitespace
- */
-function trim(str) {
-  return str.trim ? str.trim() : str.replace(/^\s+|\s+$/g, '');
-}
-
-/**
- * Determine if we're running in a standard browser environment
- *
- * This allows axios to run in a web worker, and react-native.
- * Both environments support XMLHttpRequest, but not fully standard globals.
- *
- * web workers:
- *  typeof window -> undefined
- *  typeof document -> undefined
- *
- * react-native:
- *  navigator.product -> 'ReactNative'
- * nativescript
- *  navigator.product -> 'NativeScript' or 'NS'
- */
-function isStandardBrowserEnv() {
-  if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||
-                                           navigator.product === 'NativeScript' ||
-                                           navigator.product === 'NS')) {
-    return false;
-  }
-  return (
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined'
-  );
-}
-
-/**
- * Iterate over an Array or an Object invoking a function for each item.
- *
- * If `obj` is an Array callback will be called passing
- * the value, index, and complete array for each item.
- *
- * If 'obj' is an Object callback will be called passing
- * the value, key, and complete object for each property.
- *
- * @param {Object|Array} obj The object to iterate
- * @param {Function} fn The callback to invoke for each item
- */
-function forEach(obj, fn) {
-  // Don't bother if no value provided
-  if (obj === null || typeof obj === 'undefined') {
-    return;
-  }
-
-  // Force an array if not already something iterable
-  if (typeof obj !== 'object') {
-    /*eslint no-param-reassign:0*/
-    obj = [obj];
-  }
-
-  if (isArray(obj)) {
-    // Iterate over array values
-    for (var i = 0, l = obj.length; i < l; i++) {
-      fn.call(null, obj[i], i, obj);
-    }
-  } else {
-    // Iterate over object keys
-    for (var key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        fn.call(null, obj[key], key, obj);
-      }
-    }
-  }
-}
-
-/**
- * Accepts varargs expecting each argument to be an object, then
- * immutably merges the properties of each object and returns result.
- *
- * When multiple objects contain the same key the later object in
- * the arguments list will take precedence.
- *
- * Example:
- *
- * ```js
- * var result = merge({foo: 123}, {foo: 456});
- * console.log(result.foo); // outputs 456
- * ```
- *
- * @param {Object} obj1 Object to merge
- * @returns {Object} Result of all merge properties
- */
-function merge(/* obj1, obj2, obj3, ... */) {
-  var result = {};
-  function assignValue(val, key) {
-    if (isPlainObject(result[key]) && isPlainObject(val)) {
-      result[key] = merge(result[key], val);
-    } else if (isPlainObject(val)) {
-      result[key] = merge({}, val);
-    } else if (isArray(val)) {
-      result[key] = val.slice();
-    } else {
-      result[key] = val;
-    }
-  }
-
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    forEach(arguments[i], assignValue);
-  }
-  return result;
-}
-
-/**
- * Extends object a by mutably adding to it the properties of object b.
- *
- * @param {Object} a The object to be extended
- * @param {Object} b The object to copy properties from
- * @param {Object} thisArg The object to bind function to
- * @return {Object} The resulting value of object a
- */
-function extend(a, b, thisArg) {
-  forEach(b, function assignValue(val, key) {
-    if (thisArg && typeof val === 'function') {
-      a[key] = bind(val, thisArg);
-    } else {
-      a[key] = val;
-    }
-  });
-  return a;
-}
-
-/**
- * Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
- *
- * @param {string} content with BOM
- * @return {string} content value without BOM
- */
-function stripBOM(content) {
-  if (content.charCodeAt(0) === 0xFEFF) {
-    content = content.slice(1);
-  }
-  return content;
-}
-
-/**
- * Inherit the prototype methods from one constructor into another
- * @param {function} constructor
- * @param {function} superConstructor
- * @param {object} [props]
- * @param {object} [descriptors]
- */
-
-function inherits(constructor, superConstructor, props, descriptors) {
-  constructor.prototype = Object.create(superConstructor.prototype, descriptors);
-  constructor.prototype.constructor = constructor;
-  props && Object.assign(constructor.prototype, props);
-}
-
-/**
- * Resolve object with deep prototype chain to a flat object
- * @param {Object} sourceObj source object
- * @param {Object} [destObj]
- * @param {Function} [filter]
- * @returns {Object}
- */
-
-function toFlatObject(sourceObj, destObj, filter) {
-  var props;
-  var i;
-  var prop;
-  var merged = {};
-
-  destObj = destObj || {};
-
-  do {
-    props = Object.getOwnPropertyNames(sourceObj);
-    i = props.length;
-    while (i-- > 0) {
-      prop = props[i];
-      if (!merged[prop]) {
-        destObj[prop] = sourceObj[prop];
-        merged[prop] = true;
-      }
-    }
-    sourceObj = Object.getPrototypeOf(sourceObj);
-  } while (sourceObj && (!filter || filter(sourceObj, destObj)) && sourceObj !== Object.prototype);
-
-  return destObj;
-}
-
-/*
- * determines whether a string ends with the characters of a specified string
- * @param {String} str
- * @param {String} searchString
- * @param {Number} [position= 0]
- * @returns {boolean}
- */
-function endsWith(str, searchString, position) {
-  str = String(str);
-  if (position === undefined || position > str.length) {
-    position = str.length;
-  }
-  position -= searchString.length;
-  var lastIndex = str.indexOf(searchString, position);
-  return lastIndex !== -1 && lastIndex === position;
-}
-
-
-/**
- * Returns new array from array like object
- * @param {*} [thing]
- * @returns {Array}
- */
-function toArray(thing) {
-  if (!thing) return null;
-  var i = thing.length;
-  if (isUndefined(i)) return null;
-  var arr = new Array(i);
-  while (i-- > 0) {
-    arr[i] = thing[i];
-  }
-  return arr;
-}
-
-// eslint-disable-next-line func-names
-var isTypedArray = (function(TypedArray) {
-  // eslint-disable-next-line func-names
-  return function(thing) {
-    return TypedArray && thing instanceof TypedArray;
-  };
-})(typeof Uint8Array !== 'undefined' && Object.getPrototypeOf(Uint8Array));
-
-module.exports = {
-  isArray: isArray,
-  isArrayBuffer: isArrayBuffer,
-  isBuffer: isBuffer,
-  isFormData: isFormData,
-  isArrayBufferView: isArrayBufferView,
-  isString: isString,
-  isNumber: isNumber,
-  isObject: isObject,
-  isPlainObject: isPlainObject,
-  isUndefined: isUndefined,
-  isDate: isDate,
-  isFile: isFile,
-  isBlob: isBlob,
-  isFunction: isFunction,
-  isStream: isStream,
-  isURLSearchParams: isURLSearchParams,
-  isStandardBrowserEnv: isStandardBrowserEnv,
-  forEach: forEach,
-  merge: merge,
-  extend: extend,
-  trim: trim,
-  stripBOM: stripBOM,
-  inherits: inherits,
-  toFlatObject: toFlatObject,
-  kindOf: kindOf,
-  kindOfTest: kindOfTest,
-  endsWith: endsWith,
-  toArray: toArray,
-  isTypedArray: isTypedArray,
-  isFileList: isFileList
-};
-
-},{"./helpers/bind":28}]},{},[6]);
+},{}]},{},[2]);
