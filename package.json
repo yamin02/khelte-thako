@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "// this is for the world cup 2022 fantasy football",
   "main": "crickbuzzApi.js",
-  "scripts": {
+  "scripts": {    
+    "start": "node backend/server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify frontend/js/main.js -o frontend/bundle.js"
+    "build": "cd frontend && browserify frontend/js/main.js -o frontend/bundle.js"
   },
   "author": "",
   "license": "ISC",

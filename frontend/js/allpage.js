@@ -1,5 +1,5 @@
-//const allplayerjson = require("../resource/allplayersCricket.json");
-const allplayerjson = require("../resource/footballPlayer.json")
+const allplayerjson = require("../resource/allplayersCricket.json");
+//const allplayerjsonFootball = require("../resource/footballPlayer.json")
 const shortformCountry = require("../resource/shortformCountry.json");
 const utils=require('../js/utils')
 
@@ -94,12 +94,14 @@ module.exports.playerSelect =  {
                 </div>
                 <div class="info">
                     <div class="name">${eachplayer.playerName}</div>
-                    <div class="position">Position : ${eachplayer.position}</div>
-                    <div class="club">Club: ${eachplayer.club}</div>
-                    <div class="stats">Age:${eachplayer.age} , Goals:${eachplayer.goal} ,  Caps :${eachplayer.caps}</div>
+                    <div class="position"> Position : Cricketer </div>
+                <!--<div class="position">Position : ${eachplayer.position}</div> <div class="club">Club: ${eachplayer.club}</div>
+                    <div class="stats">Age:${eachplayer.age} , Goals:${eachplayer.goal} ,  Caps :${eachplayer.caps}</div> 
+                -->
 
                     <div class="logo">
-                        <img src="${footballLogo[i]}">
+                    <!--  <img src="${footballLogo[i]}"> -->
+                    <img src="${allplayerjson[i+'Logo']}"> 
                     </div>
                 </div>
             </div>`
