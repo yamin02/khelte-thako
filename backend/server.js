@@ -16,12 +16,12 @@ mongoose.connect('mongodb+srv://yamin02:chandanpura@sharebazar.z3hlw.mongodb.net
 
 // means i am giving access to the website for cors
 app.use(cors({
-    origin:['https://sharebazar-bd.web.app' ,'http://127.0.0.1:5500']
+    origin:['https://khelte-thako.web.app' ,'http://127.0.0.1:5500']
 }))
 app.listen(5000,()=>{
     console.log("Serving at Port 5000")
 });
-app.use(express.static(path.join(__dirname,'/../public')));
+app.use(express.static(path.join(__dirname,'/../frontend')));
 // console.log(path.join(__dirname,'/../public'));
 
 app.use(express.json({limit : '1mb'}));   //remember to use , as for express to accpet json during POST req
