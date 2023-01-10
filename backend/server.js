@@ -18,7 +18,7 @@ mongoose.connect('mongodb+srv://yamin02:chandanpura@sharebazar.z3hlw.mongodb.net
 app.use(cors({
     origin:['https://sharebazar-bd.web.app' ,'http://127.0.0.1:5500']
 }))
-app.listen(5000,()=>{
+app.listen(8080,()=>{
     console.log("Serving at Port 5000")
 });
 
