@@ -1,11 +1,8 @@
 const mongoose = require('mongoose');
 
-const matchscehma = new mongoose.Schema(
+const upcomingMatch = new mongoose.Schema(
     {
-    // sport_type : {
-    //     type : String ,
-    //     required : false ,
-    // },
+    _id: String,
     time : {
         type : String,
         required : false , 
@@ -26,29 +23,21 @@ const matchscehma = new mongoose.Schema(
     { 
         versionKey : false
     })
+module.exports.upcomingMatch = mongoose.model('upcomingMatch',upcomingMatch);
 
-module.exports.upcomingMatch = mongoose.model('upcomingMatch',matchscehma)
-
-
-const userbase = new mongoose.Schema(
+const ongoingMatch_cricket = new mongoose.Schema(
     {
-    _id: Number,  //this is uid of firebase user database
-    name : String ,
-    //facebook or google 
-    loginAccountType :String,
-    balance :Number,
-    email:String,
-    //array : [contestID-positionOfUser]
-    contestParticipated :{
-        type : Array,
-        required : false , 
-    },
-
+        _id: Number,    //this will be the uid of the match in "upcomingMatch DB"
+        innings1_BatterTable : Array ,
+        innings1_BowlerTable : Array ,
+        innings1_finished : String  ,
+        innings2_BatterTable : Array ,
+        innings2_BowlerTable : Array ,
     },
     { 
         versionKey : false
     })
-module.exports.userbase = mongoose.model('userbase',userbase);
+module.exports.ongoingMatch_cricket = mongoose.model('onGoingMatch-Cricket-data',ongoingMatch_cricket);
 
 module.exports.newDatabaseForMatch = async (matchID)=>{
     const dbForMatch = new mongoose.Schema(
@@ -63,6 +52,27 @@ module.exports.newDatabaseForMatch = async (matchID)=>{
     
     mongoose.model(matchID , dbForMatch );
 }
+
+
+const userbase = new mongoose.Schema(
+    {
+        _id: Number,  //this is uid of firebase user database
+        name : String ,
+        //facebook or google 
+        loginAccountType :String,
+        balance :Number,
+        email:String,
+        //array : [contestID-positionOfUser]
+        contestParticipated :{
+            type : Array,
+            required : false , 
+        },
+    },
+    { 
+        versionKey : false
+    })
+module.exports.userbase = mongoose.model('userbase',userbase);
+
 
 
 

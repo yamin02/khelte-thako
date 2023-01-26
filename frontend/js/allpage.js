@@ -21,7 +21,7 @@ module.exports.scorecard =
                 var matchTime = i["time"].split("/")[0];
                 var matchLocation = i["match"].split("     ")[1];
                 var tornament = i['tornament'].trim()
-                var contestLink =  '/#/playerSelect/' +i['match_link'].split('/')[3];
+                var contestLink =  '/#/playerSelect/' +i['match_link'].split('/')[3]+'/'+i['_id'] ;
 
                 // $('.content').append(
                html = html  + 

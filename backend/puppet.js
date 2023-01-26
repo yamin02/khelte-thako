@@ -18,7 +18,7 @@ const getTableFixture = (async () => {
   // Extract the results from the page.
   const tableFixtureJson = await page.evaluate(tableFixture => {
     var jsonAll ={} ;
-    var date ='';var arr = [] ;
+    var date =''; var arr = [] ;
     var eachMatch = document.querySelectorAll(tableFixture);
     // return eachMatch ;
     for(var i of eachMatch){
