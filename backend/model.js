@@ -2,23 +2,13 @@ const mongoose = require('mongoose');
 
 const upcomingMatch = new mongoose.Schema(
     {
-    _id: String,
-    time : {
-        type : String,
-        required : false , 
-    },
-    match :   {
-        type : String,
-        required : false , 
-    }, 
-    tornament :   {
-        type : String,
-        required : false , 
-    },
-    match_link :   {
-        type : String,
-        required : false , 
-    }
+    _id: String,  //this is the unique name of each match
+    date:String ,
+    time:String,
+    match:String,
+    tornament:String,
+    match_link:String,
+    match_type:String
     },
     { 
         versionKey : false

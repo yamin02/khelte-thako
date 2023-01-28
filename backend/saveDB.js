@@ -16,7 +16,7 @@ var addNewUpcoming_Match = async () =>{
    //console.log(pp);
     pp.forEach(res=>{
         //Save a new database when there is a new match for collected user selected players
-        model.newDatabaseForMatch(res['_id']).then(()=>{console.log('added new DB');}); 
+        //model.newDatabaseForMatch(res['_id']).then(()=>{console.log('added new DB');}); 
     })
   
     await model.upcomingMatch.deleteMany({});

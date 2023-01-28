@@ -132,7 +132,7 @@ module.exports.playerSelect =  {
             document.querySelectorAll('.selected .name').forEach((num)=>{arr.push(num.innerText)});
             console.log(arr);
             localStorage.setItem('contest834084' ,JSON.stringify(arr));
-            utils.postresult({'userID' : arr});
+            utils.postresult({'userID' : arr}).then(res=>console.log(res));
         });
     },
 }
@@ -229,8 +229,8 @@ window.addEventListener('hashchange' , loader);
 window.addEventListener('load' , loader)
 },{"./allpage":1,"./utils":3}],3:[function(require,module,exports){
 const axios = require('axios');
-var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
-//var url = `http://127.0.0.1:5000`
+//var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
+var url = `http://127.0.0.1:5000`
 
 module.exports.parseurl = () => {
     const url = document.location.hash.toLowerCase();

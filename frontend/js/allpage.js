@@ -1,7 +1,8 @@
 const allplayerjson = require("../resource/allplayersCricket.json");
 //const allplayerjsonFootball = require("../resource/footballPlayer.json")
 const shortformCountry = require("../resource/shortformCountry.json");
-const utils=require('./utils')
+const utils=require('./utils');
+const footballLogo = require('../resource/fifaWorldCupLogo.json');
 
 module.exports.scorecard =  
 {
@@ -73,7 +74,6 @@ module.exports.scorecard =
 }
 
 //player select page
-const footballLogo = require('../resource/fifaWorldCupLogo.json');
 module.exports.playerSelect =  {
     beforeRender : async ()=>
     {
@@ -131,12 +131,10 @@ module.exports.playerSelect =  {
             document.querySelectorAll('.selected .name').forEach((num)=>{arr.push(num.innerText)});
             console.log(arr);
             localStorage.setItem('contest834084' ,JSON.stringify(arr));
-            utils.postresult({'userID' : arr});
+            utils.postresult({'userID' : arr}).then(res=>console.log(res));
         });
     },
 }
-
-
 
 module.exports.SignIn =  {
     beforeRender : async ()=>

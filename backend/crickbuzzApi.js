@@ -6,14 +6,16 @@ const axios = require('axios')
 
 const upcomingMatch_cricket =  async () =>  {
     const response = await axios({
-        url : `https://www.cricbuzz.com/cricket-schedule/upcoming-series/international` ,
+        url : `https://www.cricbuzz.com/cricket-schedule/upcoming-series/all` ,
         method : 'GET',
     }); 
 
     const virtualConsole = new jsdom.VirtualConsole();
     const dom = new JSDOM(response.data, {virtualConsole});
     //var match_data = dom.window.document.querySelectorAll("div.cb-col-100.cb-col");
-    var match_data = dom.window.document.querySelectorAll('div.cb-ovr-flo.cb-col-60.cb-col.cb-mtchs-dy-vnu.cb-adjst-lst');
+    var match_dataDate = dom.window.document.querySelectorAll(".cb-lv-grn-strip.text-bold")
+   // var match_data = dom.window.document.querySelectorAll('div.cb-ovr-flo.cb-col-60.cb-col.cb-mtchs-dy-vnu.cb-adjst-lst');
+
     var time=dom.window.document.querySelectorAll('div.cb-col-40.cb-col.cb-mtchs-dy-tm.cb-adjst-lst')
     var i = 0 ;
     var upcome_matches = [];
@@ -28,36 +30,46 @@ const upcomingMatch_cricket =  async () =>  {
         "Zimbabwe",
         "Afghanistan",
         "Scotland",
-        "Netherlands"
-    ]
-    var keyword_avoid = ['Warm-up']
+        "Netherlands", 
 
-    var have_keyword , avoid_keyword  ;
+    ]
+    var keyword_avoid = ['warm-up' , 'women' , 'unofficial'];
+    var tornament_keyword = ['bangladesh premier league' , 'indian premier league']
+
     try {
-        for (var i in match_data){
-            if(!match_data[i].textContent){return upcome_matches}
-            have_keyword = keyword_have.some(w => match_data[i].textContent.includes(w));
-            avoid_keyword = keyword_avoid.some(w => match_data[i].textContent.includes(w));
-           // console.log(result)
-            if (have_keyword && !avoid_keyword) {
-                var link =  match_data[i].querySelector('a').href.split('/')
+        console.log('datadiv lenght' , match_dataDate.length)
+        for (var dateDiv of match_dataDate){
+            var dateOfmatch = dateDiv.textContent ;
+            var match_data = dateDiv.parentNode.querySelectorAll('div.cb-ovr-flo.cb-col-60.cb-col.cb-mtchs-dy-vnu.cb-adjst-lst');
+            var time= dateDiv.parentNode.querySelectorAll('div.cb-col-40.cb-col.cb-mtchs-dy-tm.cb-adjst-lst')
+            var count = 0;
+            for(var i of match_data){
+                var tornament = i.parentElement.parentElement.querySelector('a').textContent ;
+                var have_keyword = keyword_have.some(w => i.textContent.includes(w)) || tornament_keyword.some(w=>tornament.toLowerCase().includes(w));
+                var avoid_keyword = keyword_avoid.some(w => i.textContent.toLowerCase().includes(w));
+                 if (have_keyword && !avoid_keyword) {
+                var link =  i.querySelector('a').href.split('/')
                 var eachmatch = {
                     '_id' : link[2] +'-'+ link[3].split('-')[0]+'-'+link[3].split('-')[2] ,
-                    'tornament' : match_data[i].parentElement.parentElement.querySelector('a').textContent,
+                    'tornament' : tornament,
                     'match_link': '/live-cricket-scorecard/'+link[2]+'/'+link[3],
-                    'match' :        match_data[i].textContent,
-                    'time' :  time[i].textContent,
+                    'match' :        i.textContent.trim(),
+                    'date' : dateOfmatch ,
+                    'time' :  time[count].textContent.trim(),
                     'match_type' : 'cricket'
                 } ;
-           upcome_matches.push(eachmatch);
-          console.log(eachmatch)
+                upcome_matches.push(eachmatch);
+                console.log(eachmatch)
                 }
+              count=count+1;
+             }
             }
+            return upcome_matches ;
     } catch (error) {
         console.log(error)
         }
     }
-//upcomingMatch();
+//upcomingMatch_cricket();
 module.exports.upcomingMatch = upcomingMatch_cricket
 
 
