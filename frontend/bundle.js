@@ -2,7 +2,8 @@
 const allplayerjson = require("../resource/allplayersCricket.json");
 //const allplayerjsonFootball = require("../resource/footballPlayer.json")
 const shortformCountry = require("../resource/shortformCountry.json");
-const utils=require('./utils')
+const utils=require('./utils');
+const footballLogo = require('../resource/fifaWorldCupLogo.json');
 
 module.exports.scorecard =  
 {
@@ -22,7 +23,8 @@ module.exports.scorecard =
                 var matchTime = i["time"].split("/")[0];
                 var matchLocation = i["match"].split("     ")[1];
                 var tornament = i['tornament'].trim()
-                var contestLink =  '/#/playerSelect/' +i['match_link'].split('/')[3]+'/'+i['_id'] ;
+               // var contestLink =  '/#/playerSelect/' +i['match_link'].split('/')[3]+'/'+i['_id'] ;
+                var contestLink =  '/#/playerSelect/' + i['_id'] ;
 
                 // $('.content').append(
                html = html  + 
@@ -74,7 +76,6 @@ module.exports.scorecard =
 }
 
 //player select page
-const footballLogo = require('../resource/fifaWorldCupLogo.json');
 module.exports.playerSelect =  {
     beforeRender : async ()=>
     {
@@ -82,9 +83,9 @@ module.exports.playerSelect =  {
 
     render  : async ()=> 
     {
-        const params = utils.parseurl().id.split('-') ;
+        const params = location.hash.split('-') ;
        // console.log(allplayerjson[shortformCountry[params[0]]])
-        var teams = [ shortformCountry[params[0]] ,  shortformCountry[params[2]] ];
+        var teams = [ shortformCountry[params[1]] ,  shortformCountry[params[2]] ];
         var html = '';
         for(var i of teams){
             console.log(i);
@@ -127,17 +128,20 @@ module.exports.playerSelect =  {
     },
     afterRender : async ()=>
     {
+        var id_ofMatch = location.hash.split('/')[2];
+        console.log(id_ofMatch) ;
         $("#confirm").click(function (e) { 
+            if($('.selected').length < 11 ) {alert('Select atleast 11 players') ; return 0};
             var arr =[];
             document.querySelectorAll('.selected .name').forEach((num)=>{arr.push(num.innerText)});
             console.log(arr);
-            localStorage.setItem('contest834084' ,JSON.stringify(arr));
-            utils.postresult({'userID' : arr}).then(res=>console.log(res));
+            localStorage.setItem( id_ofMatch ,JSON.stringify(arr));
+            utils.postresult({ 'userId' : JSON.parse(localStorage.UserName).uid  ,          
+                                'selectedPlayer' : arr , 
+                                'id_ofMatch' : id_ofMatch}).then(res=>console.log(res));
         });
     },
 }
-
-
 
 module.exports.SignIn =  {
     beforeRender : async ()=>
@@ -187,7 +191,7 @@ module.exports.SignIn =  {
                         {'uid' : userStuff.uid , 
                          'name' : userStuff.displayName,
                          'email' : userStuff.email,
-                         'providerId' :userStuff.providerId 
+                         'providerId' :userStuff.providerId    //tells if it is google of facebook 
                         });
                     localStorage.setItem('AccountBalance' , userAccount)
                     localStorage.setItem('UserName',JSON.stringify(userStuff));
@@ -203,7 +207,7 @@ module.exports.SignIn =  {
             var ui = new firebaseui.auth.AuthUI(firebase.auth());
             ui.start('#firebaseui-auth-container', uiConfig);
     }
-}
+}   
 
 },{"../resource/allplayersCricket.json":4,"../resource/fifaWorldCupLogo.json":5,"../resource/shortformCountry.json":6,"./utils":3}],2:[function(require,module,exports){
 var allpage = require('./allpage');
@@ -230,7 +234,7 @@ window.addEventListener('load' , loader)
 },{"./allpage":1,"./utils":3}],3:[function(require,module,exports){
 const axios = require('axios');
 //var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
-var url = `http://127.0.0.1:5000`
+var url = `http://localhost:5000`
 
 module.exports.parseurl = () => {
     const url = document.location.hash.toLowerCase();

@@ -53,16 +53,19 @@ app.get('/dsex',async (req,res)=>{
     res.send(json[0])
 })
 
+const connection = mongoose.connection;
+connection.on('error', console.error.bind(console, 'connection error:'));
+
 app.post('/userplayerselection', ((req, res) => {
     console.log(req.body) ;
-    res.send('kolla life');
+    connection.once('open', async function (json_recieved) {
+        const collection  = connection.db.collection(json_recieved['id_ofMatch']);
+        collection.insertOne(
+            { _id : json_recieved['userId'] , 'selectedPlayer': json_recieved['selectedPlayer'] }
+        ).then(ii=>{console.log(ii) ; res.send(ii) })
+      }(req.body) );
   }))
 
-
-  //Save a new database when there is a new match 
-// model.newDatabaseForMatch('chuiya12323').then(()=>{
-//     console.log('lifeee');
-// });
 
 app.post('/userbase',async (req,res)=>{
     var userData = req.body ;

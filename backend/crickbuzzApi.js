@@ -22,11 +22,8 @@ const upcomingMatch_cricket =  async () =>  {
     var keyword_have = [
         "Australia", "England","India",
         "New Zealand","Pakistan",
-        "South Africa",
-        "Sri Lanka",
-        "West Indies",
-        "Bangladesh",
-        "Ireland",
+        "South Africa", "Sri Lanka",
+        "West Indies",  "Bangladesh", "Ireland",
         "Zimbabwe",
         "Afghanistan",
         "Scotland",
@@ -75,7 +72,7 @@ module.exports.upcomingMatch = upcomingMatch_cricket
 
 
 
-const mathcUpdate_cricket =  async (link , mongoDb_id) =>  {
+const matchUpdate_cricket =  async (link , mongoDb_id) =>  {
     try{
     const response = await axios({
         url : link ,
@@ -111,5 +108,5 @@ const mathcUpdate_cricket =  async (link , mongoDb_id) =>  {
         console.log(err)
     }
 }
-//mathcUpdate_cricket()
+//matchUpdate_cricket()
    

@@ -38,11 +38,17 @@
             <div class="responsive-wrapper">
                 <div class="horizontal-tabs">
                     <a href="#"> Trending </a>
-                    <a href="#" class="active"> Football </a>
-                    <a href="#"> Cricket </a>
-                    <a href="#">Account</a>
-                    <a href="#" class="active">Add money</a>
+                    <a href="#" class="active"> Cricket </a>
+                    <!-- <a href="#" class="active"> Football </a> -->
+                    <a href="#/mycontest">My Contests</a>
+                    <a href="#/addmoney">Add Money</a>
+                    <a href="#/signin">Account</a>
                 </div>
+                <script>
+                    $('.horizontal-tabs a').click(function(){
+                    $('.active').removeClass('active')
+                    $(this).addClass('active');  });
+                </script>
                 <div class="content">
                         </div>
                     </div>
