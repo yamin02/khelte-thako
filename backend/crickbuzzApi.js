@@ -22,9 +22,7 @@ const upcomingMatch_cricket =  async () =>  {
     var keyword_have = [
         "Australia", "England","India",
         "New Zealand","Pakistan",
-        "South Africa", "Sri Lanka",
-        "West Indies",  "Bangladesh", "Ireland",
-        "Zimbabwe",
+        "South Africa", "Sri Lanka",  "Bangladesh", "Ireland",
         "Afghanistan",
         "Scotland",
         "Netherlands", 
@@ -72,7 +70,7 @@ module.exports.upcomingMatch = upcomingMatch_cricket
 
 
 
-const matchUpdate_cricket =  async (link , mongoDb_id) =>  {
+const matchUpdate_cricket =  async (link ) =>  {
     try{
     const response = await axios({
         url : link ,
@@ -86,7 +84,7 @@ const matchUpdate_cricket =  async (link , mongoDb_id) =>  {
         var data = [];
         match_dataTables[i].querySelectorAll('.cb-scrd-itms')
         .forEach((pq)=>{ 
-            var ii = '';
+            var ii = '' ;
             pq.querySelectorAll('div')
             .forEach((qq)=>{
                 ii = ii + qq.textContent + ',' ;
@@ -94,7 +92,7 @@ const matchUpdate_cricket =  async (link , mongoDb_id) =>  {
             var removeExtra_total = ['Extras' ,'Total','Did not Bat'].some(w => ii.includes(w));
             if(!removeExtra_total) {data.push(ii)} ;
         })
-        console.log(data);
+        //console.log(data);
         return data ;
     });
     return {
@@ -105,8 +103,9 @@ const matchUpdate_cricket =  async (link , mongoDb_id) =>  {
         'innings2_BowlertTable' : final_data[3] ,
     }
     }catch(err){
-        console.log(err)
+        console.log(err);
     }
 }
-//matchUpdate_cricket()
+
+// matchUpdate_cricket('https://www.cricbuzz.com/live-cricket-scorecard/50697/sys-vs-brh-challenger-big-bash-league-2022-23' )
    

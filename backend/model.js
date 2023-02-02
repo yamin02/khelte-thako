@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+mongoose.pluralize(null);
 
 const upcomingMatch = new mongoose.Schema(
     {
@@ -29,18 +30,19 @@ const ongoingMatch_cricket = new mongoose.Schema(
     })
 module.exports.ongoingMatch_cricket = mongoose.model('onGoingMatch-Cricket-data',ongoingMatch_cricket);
 
-module.exports.newDatabaseForMatch = async (matchID)=>{
-    const dbForMatch = new mongoose.Schema(
+module.exports.newDatabaseForMatches = async (matchID)=>{
+    const makeDB_formatch = new mongoose.Schema(
         //here user selected player will be saved for specific match
         {
             _id: Number,    //this will be the uid of user from firebase 
-            selectedPlayer :  Array
+            selectedPlayer :  Array ,
+
         },
         { 
             versionKey : false
         })
     
-    mongoose.model(matchID , dbForMatch );
+    mongoose.model(matchID , makeDB_formatch );
 }
 
 

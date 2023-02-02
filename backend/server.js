@@ -5,14 +5,16 @@ var cors = require('cors');
 var model = require('./model');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const crickbuzzApi =require('./crickbuzzApi');
 
 
-mongoose.connect('mongodb+srv://yamin02:chandanpura@sharebazar.z3hlw.mongodb.net/dream11copy?retryWrites=true&w=majority' ).then(() =>{
+mongoose.connect('mongodb+srv://yamin02:chandanpura@sharebazar.z3hlw.mongodb.net/khelte-thako?retryWrites=true&w=majority' ).then(() =>{
     console.log('connected to MONGO DB');
 }).catch((error) =>{
     console.log(error);
     console.log("MONGODB Error");
 });
+mongoose.pluralize(null);
 
 // means i am giving access to the website for cors
 app.use(cors({
@@ -86,3 +88,14 @@ app.post('/userbase',async (req,res)=>{
         res.send('0')
     }
 })
+
+
+
+//At a specific time period start match update
+const ongoingmatch_getdata = async () =>{
+    var upcomingMatches = model.upcomingMatch.find({}).then(res=>{
+        console.log(res)
+    });;
+}
+//ongoingmatch_getdata();
+

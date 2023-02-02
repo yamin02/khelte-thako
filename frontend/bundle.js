@@ -209,6 +209,8 @@ module.exports.SignIn =  {
     }
 }   
 
+
+
 },{"../resource/allplayersCricket.json":4,"../resource/fifaWorldCupLogo.json":5,"../resource/shortformCountry.json":6,"./utils":3}],2:[function(require,module,exports){
 var allpage = require('./allpage');
 var utils = require('./utils')
@@ -233,8 +235,8 @@ window.addEventListener('hashchange' , loader);
 window.addEventListener('load' , loader)
 },{"./allpage":1,"./utils":3}],3:[function(require,module,exports){
 const axios = require('axios');
-//var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
-var url = `http://localhost:5000`
+var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
+//var url = `http://localhost:5000`
 
 module.exports.parseurl = () => {
     const url = document.location.hash.toLowerCase();
