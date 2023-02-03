@@ -6,6 +6,7 @@ var model = require('./model');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const crickbuzzApi =require('./crickbuzzApi');
+const schedule = require('node-schedule');
 
 
 mongoose.connect('mongodb+srv://yamin02:chandanpura@sharebazar.z3hlw.mongodb.net/khelte-thako?retryWrites=true&w=majority' ).then(() =>{
@@ -93,9 +94,26 @@ app.post('/userbase',async (req,res)=>{
 
 //At a specific time period start match update
 const ongoingmatch_getdata = async () =>{
-    var upcomingMatches = model.upcomingMatch.find({}).then(res=>{
-        console.log(res)
-    });;
+    model.upcomingMatch.find({}).then( res=>{
+        res.forEach(i =>{
+            var date = i.date +' '+ i.time.split("/")[0]  ;
+            var pp = new Date(date);
+            if(pp-(new Date) <  1000 * 60 * 60 * 24 ){  //take dates less than 24 hours
+                console.log(pp.toLocaleString() , 'is the sex');
+                 var d1 = new Date (), d2 = new Date ( d1 );
+                 d2.setMinutes ( d1.getMinutes() + 1 );
+               // const date = new Date(2012, 11, 21, 5, 30, 0);
+                var jobs = schedule.scheduleJob(d2, async function(){
+                    console.log('The match is starting now' , i.match);
+                    var data = await crickbuzzApi.matchUpdate_cricket('https://www.cricbuzz.com'+i.match_link , i._id );
+                    model.ongoingMatch_cricket.insertMany([data]);
+                    //then continue parsing ongoind data at some interval till the game stops
+            });
+            }
+        })
+    });
 }
-//ongoingmatch_getdata();
+//(ongoingmatch_getdata , 1000 * 60 * 60 *12)
+ongoingmatch_getdata();
 
+ 

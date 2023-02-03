@@ -22,13 +22,14 @@ const upcomingMatch_cricket =  async () =>  {
     var keyword_have = [
         "Australia", "England","India",
         "New Zealand","Pakistan",
-        "South Africa", "Sri Lanka",  "Bangladesh", "Ireland",
+        "South Africa", "Sri Lanka",
+        "West Indies",  "Bangladesh", "Ireland",
+        "Zimbabwe",
         "Afghanistan",
         "Scotland",
         "Netherlands", 
-
     ]
-    var keyword_avoid = ['warm-up' , 'women' , 'unofficial'];
+    var keyword_avoid = ['warm-up' , 'women' , 'unofficial','test'];
     var tornament_keyword = ['bangladesh premier league' , 'indian premier league']
 
     try {
@@ -70,7 +71,7 @@ module.exports.upcomingMatch = upcomingMatch_cricket
 
 
 
-const matchUpdate_cricket =  async (link ) =>  {
+const matchUpdate_cricket =  async (link , match_uid) =>  {
     try{
     const response = await axios({
         url : link ,
@@ -80,7 +81,8 @@ const matchUpdate_cricket =  async (link ) =>  {
     const dom = new JSDOM(response.data, {virtualConsole});
     var match_dataTables = dom.window.document.querySelectorAll('.cb-ltst-wgt-hdr');
     //console.log(match_dataTables)
-    var final_data = [0,1,3,4].forEach((i)=>{
+    var final_data =[] ;
+    [0,1,3,4].forEach((i)=>{
         var data = [];
         match_dataTables[i].querySelectorAll('.cb-scrd-itms')
         .forEach((pq)=>{ 
@@ -92,13 +94,15 @@ const matchUpdate_cricket =  async (link ) =>  {
             var removeExtra_total = ['Extras' ,'Total','Did not Bat'].some(w => ii.includes(w));
             if(!removeExtra_total) {data.push(ii)} ;
         })
-        //console.log(data);
-        return data ;
+       // console.log(data);
+        final_data.push(data);
     });
+    //console.log(final_data);
     return {
+        '_id' : match_uid ,
         'innings1_BatterTable' : final_data[0] ,
         'innings1_BowlertTable' : final_data[1] ,
-        'innings1_finished' : final_data[2]='null' ? "no" : "yes"  ,
+        //'innings1_finished' : final_data[2]='null' ? "no" : "yes"  ,
         'innings2_BatterTable' : final_data[2] ,
         'innings2_BowlertTable' : final_data[3] ,
     }
@@ -106,6 +110,6 @@ const matchUpdate_cricket =  async (link ) =>  {
         console.log(err);
     }
 }
-
+module.exports.matchUpdate_cricket = matchUpdate_cricket ;
 // matchUpdate_cricket('https://www.cricbuzz.com/live-cricket-scorecard/50697/sys-vs-brh-challenger-big-bash-league-2022-23' )
    
