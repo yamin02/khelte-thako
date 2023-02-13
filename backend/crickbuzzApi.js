@@ -102,7 +102,7 @@ const matchUpdate_cricket =  async (link , match_uid) =>  {
         '_id' : match_uid ,
         'innings1_BatterTable' : final_data[0] ,
         'innings1_BowlertTable' : final_data[1] ,
-        //'innings1_finished' : final_data[2]='null' ? "no" : "yes"  ,
+        'innings1_finished' : final_data[2]='null' ? "no" : "yes"  ,
         'innings2_BatterTable' : final_data[2] ,
         'innings2_BowlertTable' : final_data[3] ,
     }

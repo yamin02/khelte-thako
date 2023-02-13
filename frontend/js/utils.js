@@ -1,6 +1,6 @@
 const axios = require('axios');
-//var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
-var url = `http://localhost:5000`
+var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
+//var url = `http://localhost:5000`
 
 module.exports.parseurl = () => {
     const url = document.location.hash.toLowerCase();
