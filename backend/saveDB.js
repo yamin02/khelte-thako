@@ -9,7 +9,6 @@ mongoose.connect('mongodb+srv://yamin02:chandanpura@sharebazar.z3hlw.mongodb.net
     console.log(error);
     console.log("MONGODB Error");
 });
-mongoose.cache
 
 var addNewUpcoming_Match = async () =>{
     var pp = await crickbuzzApi.upcomingMatch();
@@ -25,7 +24,7 @@ var addNewUpcoming_Match = async () =>{
   })
 
 }
-addNewUpcoming_Match();
+//addNewUpcoming_Match();
 
 // const connection = mongoose.connection;
 

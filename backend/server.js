@@ -103,17 +103,18 @@ const ongoingmatch_getdata = async () =>{
                  var d1 = new Date (), d2 = new Date ( d1 );
                  d2.setMinutes ( d1.getMinutes() + 1 );
                // const date = new Date(2012, 11, 21, 5, 30, 0);
-                var jobs = schedule.scheduleJob(d2, async function(){
+                var jobs = schedule.scheduleJob(d2, async function()
+                {
                     console.log('The match is starting now' , i.match);
                     var data = await crickbuzzApi.matchUpdate_cricket('https://www.cricbuzz.com'+i.match_link , i._id );
                     model.ongoingMatch_cricket.insertMany([data]);
                     //then continue parsing ongoind data at some interval till the game stops
-            });
+                });
             }
         })
     });
 }
 //(ongoingmatch_getdata , 1000 * 60 * 60 *12)
-ongoingmatch_getdata();
+// ongoingmatch_getdata();
 
  
