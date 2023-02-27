@@ -29,7 +29,7 @@ const upcomingMatch_cricket =  async () =>  {
         "Scotland",
         "Netherlands", 
     ]
-    var keyword_avoid = ['warm-up' , 'women' , 'unofficial','test'];
+    var keyword_avoid = ['warm-up' , 'women' , 'unofficial','test','irani','queensland','tasmania'];
     var tornament_keyword = ['bangladesh premier league' , 'indian premier league']
 
     try {

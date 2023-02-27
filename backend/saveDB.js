@@ -24,6 +24,7 @@ var addNewUpcoming_Match = async () =>{
   })
 
 }
+module.exports.addNewUpcoming_Match = addNewUpcoming_Match
 //addNewUpcoming_Match();
 
 // const connection = mongoose.connection;
