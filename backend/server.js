@@ -120,6 +120,6 @@ const ongoingmatch_getdata = async () =>{
     });
 }
 //(ongoingmatch_getdata , 1000 * 60 * 60 *12)
-ongoingmatch_getdata();
+//ongoingmatch_getdata();
 
  
