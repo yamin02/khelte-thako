@@ -114,10 +114,12 @@ module.exports.playerSelect =  {
         <a id="confirm">Confirm team</a>
         <div class="app" id="app">
         <div> 
-        <div class="players">
-        <div class="toolbar">
-             <input type="text" id="query" class="search" placeholder="Search players by name or team"/> ${html}
-        </div></div></div></div>
+            <div class="toolbar">
+                <input type="text" id="query" class="search" placeholder="Search players by name or team"/>
+            </div>
+            <div class="players">${html}</div>
+        </div>
+        </div>
         <script>
             $(".player").click(function(){
                 $(this).toggleClass("selected");

@@ -115,10 +115,12 @@ module.exports.playerSelect =  {
         <a id="confirm">Confirm team</a>
         <div class="app" id="app">
         <div> 
-        <div class="players">
-        <div class="toolbar">
-             <input type="text" id="query" class="search" placeholder="Search players by name or team"/> ${html}
-        </div></div></div></div>
+            <div class="toolbar">
+                <input type="text" id="query" class="search" placeholder="Search players by name or team"/>
+            </div>
+            <div class="players">${html}</div>
+        </div>
+        </div>
         <script>
             $(".player").click(function(){
                 $(this).toggleClass("selected");
@@ -235,8 +237,8 @@ window.addEventListener('hashchange' , loader);
 window.addEventListener('load' , loader)
 },{"./allpage":1,"./utils":3}],3:[function(require,module,exports){
 const axios = require('axios');
-var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
-//var url = `http://localhost:5000`
+//var url = `https://plankton-app-9bcl3.ondigitalocean.app` ;
+var url = `http://localhost:5000`
 
 module.exports.parseurl = () => {
     const url = document.location.hash.toLowerCase();

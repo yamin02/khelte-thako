@@ -5,7 +5,6 @@ var cors = require('cors');
 var model = require('./model');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const crickbuzzApi =require('./crickbuzzApi');
 const saveDB = require('./saveDB')
 const schedule = require('node-schedule');
 
@@ -92,7 +91,7 @@ app.post('/userbase',async (req,res)=>{
 })
 
 // Update the upcoming match list 
-saveDB.addNewUpcoming_Match() ;
+//saveDB.addNewUpcoming_Match() ;
 setInterval(saveDB.addNewUpcoming_Match,1000*3600*6); // repeat after 6 minutes
 
 
